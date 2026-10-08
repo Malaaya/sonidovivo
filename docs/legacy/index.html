@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sonido Vivo - Tienda de Instrumentos Musicales y Audio Profesional en Viña del Mar.">
+  <title>Sonido Vivo | Tienda de Instrumentos y Audio</title>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23d00000'/><text x='32' y='36' font-family='Arial, sans-serif' font-style='italic' font-weight='bold' font-size='38' fill='%23ffffff' text-anchor='middle' dominant-baseline='central' letter-spacing='-4'>sv</text></svg>">
+  
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <!-- Header Superior -->
+  <header class="site-header">
+    <div class="top-bar">
+      <div class="brand-logo">
+        <a href="index.html">SONIDO <span>VIVO</span></a>
+      </div>
+
+      <div class="header-search-bar">
+        <input type="text" id="header-search-input" placeholder="Buscar en catálogo...">
+        <button type="button" id="btn-header-search">Buscar</button>
+      </div>
+
+      <div class="user-actions">
+        <a href="login.html" class="btn-auth-pill">Acceder / Registro</a>
+        <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">🛒
+          <span class="cart-badge-count" id="cart-count">0</span>
+        </a>
+      </div>
+    </div>
+
+<nav class="sub-nav-bar" aria-label="Navegación principal">
+      <div class="sub-nav-container">
+        <!-- Menú Hamburguesa de Categorías -->
+        <details class="hamburger-menu">
+          <summary class="hamburger-btn">
+            <span>☰</span> Categorías
+          </summary>
+          <ul class="hamburger-dropdown">
+            <li><a href="productos.html">Todos los productos</a></li>
+            <li><a href="productos.html?cat=guitarras">Guitarras</a></li>
+            <li><a href="productos.html?cat=bajos">Bajos Eléctricos</a></li>
+            <li><a href="productos.html?cat=amplis">Amplificadores</a></li>
+            <li><a href="productos.html?cat=pedales">Pedales de Efectos</a></li>
+            <li><a href="productos.html?cat=baterias">Baterías & Percusión</a></li>
+            <li><a href="productos.html?cat=teclados">Teclados y Pianos</a></li>
+          </ul>
+        </details>
+
+        <!-- Links Principales -->
+        <ul class="main-nav-links">
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="productos.html">Ver Catálogo</a></li>
+          <li><a href="nosotros.html">Sobre Nosotros</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+          <li><a href="admin.html" class="link-panel-admin">Portal Admin</a></li>
+        </ul>
+      </div>
+    </nav>
+
+  <!-- Main -->
+  <main>
+
+    <!-- Banner Hero Estático -->
+    <section class="hero-static-banner" style="min-height: 200px; padding: 1.2rem 3rem; display: flex; align-items: center; background: linear-gradient(90deg, rgba(11,15,25,0.92) 0%, rgba(11,15,25,0.65) 55%, rgba(233,30,99,0.3) 100%), url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1400&auto=format&fit=crop&q=80') center/cover no-repeat;">
+
+        <div class="hero-static-content">
+            <h1 class="hero-static-title" style="color: #ffffff; font-size: 2.8rem; margin-bottom: 1rem;">¡Equípate con el Mejor Tono!</h1>
+            <p class="hero-static-desc" style="color: #e2e8f0; font-size: 1.2rem; margin-bottom: 1.5rem;">Guitarras, bajos, amplificadores y accesorios seleccionados con garantía directa.</p>
+            <div class="hero-static-actions">
+            <a href="productos.html" class="btn-slide-cta">Explorar Catálogo</a>
+            </div>
+      </div>
+    </section>
+
+    <!-- Sección Productos y Categorías -->
+    <section class="shop-section-container">
+      <div class="shop-header-intro">
+        <h2>Productos Destacados</h2>
+        <p>Nuestra selección de instrumentos más pedidos con disponibilidad inmediata</p>
+      </div>
+<div class="shop-layout">
+  <!-- Grilla de Productos -->
+  <div class="products-shelf-grid" id="contenedor-ofertas">
+  </div>
+</div>
+    </section>
+
+    <!-- Marcas Oficiales -->
+    <section class="brands-section">
+      <div class="brands-header">
+        <h3>Nuestras Marcas Oficiales</h3>
+        <p>Marcas líderes con garantía directa de fábrica</p>
+      </div>
+      <div class="brands-showcase">
+        <span class="brand-name-tag">YAMAHA</span>
+        <span class="brand-name-tag">FENDER</span>
+        <span class="brand-name-tag">MARSHALL</span>
+        <span class="brand-name-tag">ROLAND</span>
+        <span class="brand-name-tag">BOSS</span>
+        <span class="brand-name-tag">SHURE</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer Estilo Natcom -->
+  <footer class="deep-footer">
+    <div class="footer-inner">
+      <div class="footer-col-about">
+        <div class="footer-logo">SONIDO <span>VIVO</span></div>
+        <p style="font-size: 0.88rem; line-height: 1.6;">Tienda especializada en instrumentos y audio profesional con 11 años de trayectoria en la Región de Valparaíso.</p>
+        <div class="footer-payment-badges">
+          <span class="badge-payment">Compra Segura</span>
+          <span class="badge-payment">Webpay Plus</span>
+          <span class="badge-payment">Transbank</span>
+          <span class="badge-payment">Visa / Redcompra</span>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="footer-col-title">Links Importantes</h4>
+        <ul class="footer-links-list">
+          <li><a href="productos.html">Catálogo Completo</a></li>
+          <li><a href="nosotros.html">Quiénes Somos</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="footer-col-title">Atención al Cliente</h4>
+        <ul class="footer-links-list">
+          <li><a href="contacto.html">Formulario de Contacto</a></li>
+          <li><a href="admin.html" class="link-panel-admin">Panel de Vendedores</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-contact-items">
+        <h4 class="footer-col-title">Contacto Tienda</h4>
+        <p>📱 +56 9 1234 5678</p>
+        <p>✉️ contacto@sonidovivo.cl</p>
+        <p>🕒 Lun a Vie: 10:00 a 19:30 hrs</p>
+        <p>🕒 Sábados: 10:30 a 14:30 hrs</p>
+        <p>📍 Viña del Mar, Región de Valparaíso</p>
+      </div>
+    </div>
+
+    <div class="deep-footer-bottom">
+      <p>&copy; 2026 Sonido Vivo Ltda. - VRK.</p>
+    </div>
+  </footer>
+
+<!-- Scripts -->
+  <script src="js/datos.js"></script>
+  <script src="js/carrito.js"></script>
+  <script src="js/login.js"></script>
+  <script src="js/catalogo.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // 1. Inyección de productos desde js/datos.js
+      const contenedor = document.getElementById("contenedor-ofertas");
+      const productos = typeof productosDB !== "undefined" 
+        ? productosDB 
+        : (JSON.parse(localStorage.getItem("sonido_vivo_productos")) || []);
+
+      if (contenedor && productos.length > 0) {
+        const destacados = productos.slice(0, 4);
+        contenedor.innerHTML = destacados.map(prod => {
+          const precioAnterior = Math.round(prod.precio * 1.15);
+          return `
+            <article class="shelf-product-card">
+              <span class="badge-offer">¡OFERTA!</span>
+              <img class="shelf-product-img" src="${prod.imagen}" alt="${prod.nombre}" loading="lazy">
+              <div class="shelf-product-body" style="display: flex; flex-direction: column; height: 100%;">
+                <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">${prod.codigo} | ${prod.categoria}</span>
+                <h4 class="shelf-product-title" style="color: #000000 !important; font-weight: 700; margin: 0.3rem 0;">${prod.nombre}</h4>
+                <p style="font-size: 0.85rem; color: #475569; line-height: 1.3; margin-bottom: 0.8rem; flex-grow: 1;">${prod.descripcion}</p>
+                <p class="shelf-product-old-price" style="margin: 0; color: #94a3b8; text-decoration: line-through; font-size: 0.85rem;">$${precioAnterior.toLocaleString("es-CL")}</p>
+                <p class="shelf-product-price" style="color: #000000 !important; font-weight: 800; font-size: 1.2rem; margin-bottom: 0.6rem;">$${prod.precio.toLocaleString("es-CL")}</p>
+                <button type="button" class="btn-slide-cta" style="width: 100%; padding: 0.6rem; font-size: 0.9rem; border: none; cursor: pointer; background: #ffc107; color: #000; font-weight: bold; border-radius: 6px;" onclick="agregarAlCarrito('${prod.codigo}')">Agregar al Carrito</button>
+              </div>
+            </article>`;
+        }).join("");
+      }
+
+      // 2. Funcionalidad de búsqueda
+      const searchInput = document.getElementById("header-search-input");
+      const btnSearch = document.getElementById("btn-header-search");
+      function buscar() {
+        const query = searchInput.value.trim();
+        if (query.length > 0) {
+          window.location.href = `productos.html?buscar=${encodeURIComponent(query)}`;
+        }
+      }
+      if (btnSearch && searchInput) {
+        btnSearch.addEventListener("click", buscar);
+        searchInput.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") buscar();
+        });
+      }
+    });
+  </script>
+  
+</body>
+</html>
+
