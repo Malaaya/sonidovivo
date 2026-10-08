@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo - Sonido Vivo</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23d00000'/><text x='32' y='36' font-family='Arial, sans-serif' font-style='italic' font-weight='bold' font-size='38' fill='%23ffffff' text-anchor='middle' dominant-baseline='central' letter-spacing='-4'>sv</text></svg>">
+  <link rel="stylesheet" href="css/main.css?v=4">
+</head>
+<body>
+
+  <!-- Header Superior -->
+  <header class="site-header">
+    <div class="top-bar">
+      <div class="brand-logo">
+        <a href="index.html">SONIDO <span>VIVO</span></a>
+      </div>
+
+      <div class="header-search-bar">
+        <input type="text" id="header-search-input" placeholder="Buscar en catálogo...">
+        <button type="button" id="btn-header-search">Buscar</button>
+      </div>
+
+      <div class="user-actions">
+        <a href="login.html" class="btn-auth-pill">Acceder / Registro</a>
+        <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">🛒
+          <span class="cart-badge-count" id="cart-count">0</span>
+        </a>
+      </div>
+    </div>
+
+    <nav class="sub-nav-bar" aria-label="Navegación principal">
+      <div class="sub-nav-container">
+        <!-- Menú Hamburguesa de Categorías -->
+        <details class="hamburger-menu">
+          <summary class="hamburger-btn">
+            <span>☰</span> Categorías
+          </summary>
+          <ul class="hamburger-dropdown">
+            <li><a href="productos.html">Todos los productos</a></li>
+            <li><a href="productos.html?cat=guitarras">Guitarras</a></li>
+            <li><a href="productos.html?cat=bajos">Bajos Eléctricos</a></li>
+            <li><a href="productos.html?cat=amplis">Amplificadores</a></li>
+            <li><a href="productos.html?cat=pedales">Pedales de Efectos</a></li>
+            <li><a href="productos.html?cat=baterias">Baterías & Percusión</a></li>
+            <li><a href="productos.html?cat=teclados">Teclados y Pianos</a></li>
+          </ul>
+        </details>
+
+        <!-- Links Principales -->
+        <ul class="main-nav-links">
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="productos.html">Ver Catálogo</a></li>
+          <li><a href="nosotros.html">Sobre Nosotros</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+          <li><a href="admin.html" class="link-panel-admin">Portal Admin</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Contenido Principal: Grilla del Catálogo -->
+  <main class="shop-section-container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+    <div class="shop-header-intro" style="text-align: center; margin-bottom: 2rem;">
+      <h2 id="titulo-categoria" style="font-size: 2rem; color: #0f172a; margin-bottom: 0.5rem;">Catálogo Completo</h2>
+      <p style="color: #64748b; font-size: 1rem;">Explora todos nuestros instrumentos y equipos con garantía directa.</p>
+    </div>
+
+    <!-- Contenedor donde catalogo.js inyecta las tarjetas -->
+    <div class="products-shelf-grid" id="contenedor-productos"></div>
+  </main>
+
+
+  <!-- Lógica de Búsqueda del Header -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const searchBtn = document.getElementById('btn-header-search');
+      const searchInput = document.getElementById('header-search-input');
+
+      function realizarBusqueda() {
+        const query = searchInput.value.trim();
+        if (query) {
+          window.location.href = `productos.html?buscar=${encodeURIComponent(query)}`;
+        }
+      }
+
+      if (searchBtn && searchInput) {
+        searchBtn.addEventListener('click', realizarBusqueda);
+        searchInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') realizarBusqueda();
+        });
+      }
+    });
+  </script>
+  <!-- Importaciones desde la carpeta js/ -->
+  <script src="js/datos.js"></script>
+  <script src="js/carrito.js"></script>
+  <script src="js/catalogo.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>
