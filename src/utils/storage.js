@@ -1,12 +1,19 @@
 export const CLAVES = {
-  PRODUCTOS: 'sonido_vivo_productos',
-  CARRITO: 'sonido_vivo_carrito',
-  USUARIOS: 'sonido_vivo_usuarios',
-  SESION: 'sonido_vivo_sesion',
+  productos: 'sonido_vivo_productos',
+  carrito: 'sonido_vivo_carrito',
+  usuarios: 'sonido_vivo_usuarios',
+  sesion: 'sonido_vivo_sesion',
+  historial: (run) => `historial_${run}`,
 }
 
-export function leer(clave, porDefecto = null) {
-  return JSON.parse(localStorage.getItem(clave)) || porDefecto
+export function leer(clave, porDefecto) {
+  try {
+    const valor = localStorage.getItem(clave)
+    if (valor === null) return porDefecto
+    return JSON.parse(valor) ?? porDefecto
+  } catch {
+    return porDefecto
+  }
 }
 
 export function guardar(clave, valor) {

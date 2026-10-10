@@ -1,3 +1,4 @@
+
 export function limpiarRun(valor) {
   let run = valor.toUpperCase().replace(/[^0-9K-]/g, '')
   if (run.length > 10) run = run.slice(0, 10)
