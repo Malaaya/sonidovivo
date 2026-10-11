@@ -121,9 +121,7 @@ export default function Login() {
               onClick: () => navigate(esAdmin ? '/admin' : '/'),
             },
           ]}
-        >
-          Has iniciado sesión correctamente. Ya puedes revisar tus compras y acceder a los
-          beneficios de tu cuenta.
+        >Has iniciado sesión correctamente.
         </Modal>
       )}
     </main>
