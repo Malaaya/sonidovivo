@@ -1,175 +1,131 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Inicio de Sesión - Sonido Vivo Viña del Mar.">
-  <title>Iniciar Sesión | Sonido Vivo</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23d00000'/><text x='32' y='36' font-family='Arial, sans-serif' font-style='italic' font-weight='bold' font-size='38' fill='%23ffffff' text-anchor='middle' dominant-baseline='central' letter-spacing='-4'>sv</text></svg>">
-  <link rel="stylesheet" href="css/main.css">
-</head>
-<body>
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { limpiarRun } from '../utils/rut'
+import { primerNombre } from '../utils/formato'
+import Espacio from '../components/Espacio'
+import Modal from '../components/Modal'
 
-  <!-- Header Superior -->
-  <header class="site-header">
-    <div class="top-bar">
-      <div class="brand-logo">
-        <a href="index.html">SONIDO <span>VIVO</span></a>
-      </div>
+export default function Login() {
+  const { login } = useAuth()
+  const navigate = useNavigate()
 
-      <div class="header-search-bar">
-        <input type="text" id="header-search-input" placeholder="Buscar en catálogo...">
-        <button type="button" id="btn-header-search">Buscar</button>
-      </div>
+  const [run, setRun] = useState('')
+  const [password, setPassword] = useState('')
+  const [errores, setErrores] = useState({})
+  const [sesionIniciada, setSesionIniciada] = useState(null)
 
-      <div class="user-actions">
-        <a href="registro.html" class="btn-auth-pill">Crear Cuenta</a>
-        <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">🛒
-          <span class="cart-badge-count" id="cart-count">0</span>
-        </a>
-      </div>
-    </div>
+  const manejarSubmit = (e) => {
+    e.preventDefault()
+    setErrores({})
 
-    <nav class="sub-nav-bar" aria-label="Navegación principal">
-      <div class="sub-nav-container">
-        <!-- Menu Hamburguesa -->
-        <details class="hamburger-menu">
-          <summary class="hamburger-btn">
-            <span>☰</span> Categorías
-          </summary>
-          <ul class="hamburger-dropdown">
-            <li><a href="productos.html">Todos los productos</a></li>
-            <li><a href="productos.html?cat=guitarras">Guitarras</a></li>
-            <li><a href="productos.html?cat=bajos">Bajos Eléctricos</a></li>
-            <li><a href="productos.html?cat=amplis">Amplificadores</a></li>
-            <li><a href="productos.html?cat=pedales">Pedales de Efectos</a></li>
-            <li><a href="productos.html?cat=baterias">Baterías & Percusión</a></li>
-            <li><a href="productos.html?cat=teclados">Teclados y Pianos</a></li>
-          </ul>
-        </details>
+    if (!run.trim()) {
+      setErrores({ run: 'Debe ingresar su RUN.' })
+      return
+    }
+    if (!password) {
+      setErrores({ password: 'Debe ingresar su contraseña.' })
+      return
+    }
 
-        <!-- Links Principales -->
-        <ul class="main-nav-links">
-          <li><a href="index.html">Inicio</a></li>
-          <li><a href="productos.html">Ver Catálogo</a></li>
-          <li><a href="nosotros.html">Sobre Nosotros</a></li>
-          <li><a href="contacto.html">Contacto</a></li>
-          <li><a href="admin.html" class="link-panel-admin">Portal Admin</a></li>
-        </ul>
-      </div>
-    </nav>
-  </header>
+    const sesion = login(run, password)
+    if (sesion) {
+      setSesionIniciada(sesion)
+    } else {
+      setErrores({ password: 'RUN o contraseña incorrectos.' })
+    }
+  }
 
-  <!-- Contenedor del Formulario Login -->
-  <main style="max-width: 480px; margin: 3.5rem auto; padding: 0 1.5rem;">
-    <div style="background: #ffffff; padding: 2.5rem; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-      
-      <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: #0f172a;">Iniciar Sesión</h2>
-      <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 2rem;">Accede con tu cuenta para gestionar tus pedidos y compras.</p>
+  const esAdmin = sesionIniciada?.rol === 'admin'
 
-      <form id="form-login" novalidate>
-        
-        <!-- RUT -->
-        <div style="margin-bottom: 1.2rem;">
-          <label for="login-run" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem;">RUN de Cliente</label>
-          <input type="text" id="login-run" name="run" maxlength="10" placeholder="Ej: 19876543-0" style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.95rem;" required>
-          <span class="msg-error" id="error-login-run" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.3rem;"></span>
-        </div>
-
-        <!-- Contraseña -->
-        <div style="margin-bottom: 1.5rem;">
-          <label for="login-password" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem;">Contraseña</label>
-          <input type="password" id="login-password" name="password" maxlength="30" style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.95rem;" required>
-          <span class="msg-error" id="error-login-password" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.3rem;"></span>
-        </div>
-
-        <!-- Botón Acceder -->
-        <button type="submit" class="btn-slide-cta" style="width: 100%; padding: 0.9rem; border: none; font-size: 1rem; cursor: pointer; text-align: center; margin-bottom: 1.2rem;">
-          Entrar a Mi Cuenta
-        </button>
-
-        <p style="text-align: center; font-size: 0.9rem; color: #64748b;">
-          ¿No tienes una cuenta aún? 
-          <a href="registro.html" style="color: var(--accent-pink); font-weight: 600; text-decoration: none;">Regístrate aquí</a>
+  return (
+    <main style={{ maxWidth: '480px', margin: '3.5rem auto', padding: '0 1.5rem' }}>
+      <div
+        style={{
+          background: '#ffffff',
+          padding: '2.5rem',
+          borderRadius: '10px',
+          border: '1px solid var(--border-color)',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+        }}
+      >
+        <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', color: '#0f172a' }}>
+          Iniciar Sesión
+        </h2>
+        <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '2rem' }}>
+          Accede con tu cuenta para gestionar tus pedidos y compras.
         </p>
 
-      </form>
-    </div>
-  </main>
+        <form onSubmit={manejarSubmit} noValidate>
+          <Espacio
+            id="login-run"
+            label="RUN de Cliente"
+            type="text"
+            maxLength={10}
+            placeholder="Ej: 12345678-5"
+            value={run}
+            onChange={(e) => setRun(limpiarRun(e.target.value))}
+            error={errores.run}
+          />
 
-  <!-- Footer -->
-  <footer class="deep-footer">
-    <div class="footer-inner">
-      <div class="footer-col-about">
-        <div class="footer-logo">SONIDO <span>VIVO</span></div>
-        <p style="font-size: 0.88rem; line-height: 1.6;">Tienda especializada en instrumentos y audio profesional con 11 años de trayectoria en la Región de Valparaíso.</p>
-      </div>
-      <div>
-        <h4 class="footer-col-title">Links Importantes</h4>
-        <ul class="footer-links-list">
-          <li><a href="productos.html">Catálogo Completo</a></li>
-          <li><a href="nosotros.html">Quiénes Somos</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="footer-col-title">Atención al Cliente</h4>
-        <ul class="footer-links-list">
-          <li><a href="contacto.html">Contacto</a></li>
-          <li><a href="admin/home.html">Panel de Vendedores</a></li>
-        </ul>
-      </div>
-      <div class="footer-contact-items">
-        <h4 class="footer-col-title">Contacto</h4>
-        <p>📱 +56 9 1234 5678</p>
-        <p>✉️ contacto@sonidovivo.cl</p>
-        <p>📍 Viña del Mar, Región de Valparaíso</p>
-      </div>
-    </div>
-    <div class="deep-footer-bottom">
-      <p>&copy; 2026 Sonido Vivo Ltda. - VRK.</p>
-    </div>
-  </footer>
+          <Espacio
+            id="login-password"
+            label="Contraseña"
+            type="password"
+            maxLength={30}
+            margen="1.5rem"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={errores.password}
+          />
 
-  <!-- Modal de confirmación de Login -->
-  <div id="modal-exito-login" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center;">
-    <div style="background: #ffffff; padding: 2.5rem; border-radius: 16px; max-width: 450px; width: 90%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);">
-      <div style="font-size: 3rem; margin-bottom: 0.5rem;">👋</div>
-      <h3 id="modal-login-saludo" style="font-size: 1.5rem; color: #0f172a; margin-bottom: 0.8rem; font-weight: 800;">¡Bienvenido!</h3>
-      <p style="color: #475569; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.8rem;">
-        Has iniciado sesión correctamente. Ya puedes revisar tus compras y acceder a los beneficios de tu cuenta.
-      </p>
-      <button id="btn-ir-catalogo" style="background: var(--accent-pink, #e91e63); color: #ffffff; font-weight: 700; border: none; padding: 0.8rem 1.8rem; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: background 0.2s;">
-        Ir a la Tienda
-      </button>
-    </div>
-  </div>
+          <button
+            type="submit"
+            className="btn-slide-cta"
+            style={{
+              width: '100%',
+              padding: '0.9rem',
+              border: 'none',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              textAlign: 'center',
+              marginBottom: '1.2rem',
+            }}
+          >
+            Entrar a Mi Cuenta
+          </button>
 
-  <!-- Script de Login -->
-  <script src="js/login.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      // 1. Contador de Carrito
-      const carrito = JSON.parse(localStorage.getItem("sonido_vivo_carrito")) || [];
-      const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
-      const cartCountEl = document.getElementById("cart-count");
-      if (cartCountEl) cartCountEl.textContent = totalItems;
+          <p style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748b' }}>
+            ¿No tienes una cuenta aún?{' '}
+            <Link
+              to="/registro"
+              style={{
+                color: 'var(--accent-pink)',
+                fontWeight: 600,
+                textDecoration: 'none',
+              }}
+            >
+              Regístrate aquí
+            </Link>
+          </p>
+        </form>
+      </div>
 
-      // 2. Buscador del Header
-      const searchInput = document.getElementById("header-search-input");
-      const btnSearch = document.getElementById("btn-header-search");
-      function buscar() {
-        const query = searchInput.value.trim();
-        if (query.length > 0) {
-          window.location.href = `productos.html?buscar=${encodeURIComponent(query)}`;
-        }
-      }
-      if (btnSearch && searchInput) {
-        btnSearch.addEventListener("click", buscar);
-        searchInput.addEventListener("keypress", (e) => {
-          if (e.key === "Enter") buscar();
-        });
-      }
-    });
-  </script>
-</body>
-</html>
+      {sesionIniciada && (
+        <Modal
+          emoji="👋"
+          titulo={`¡Hola, ${primerNombre(sesionIniciada.nombre)}!`}
+          botones={[
+            {
+              texto: esAdmin ? 'Ir al Panel Admin' : 'Ir a la Tienda',
+              onClick: () => navigate(esAdmin ? '/admin' : '/'),
+            },
+          ]}
+        >
+          Has iniciado sesión correctamente. Ya puedes revisar tus compras y acceder a los
+          beneficios de tu cuenta.
+        </Modal>
+      )}
+    </main>
+  )
+}
