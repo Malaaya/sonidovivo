@@ -6,7 +6,6 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [usuarios, setUsuarios] = useState(() => leer(CLAVES.usuarios, []))
 
-  // Devuelve false si el RUN ya está registrado
   const registrar = (usuario) => {
     if (usuarios.some((u) => u.run === usuario.run)) return false
     const nuevaLista = [...usuarios, usuario]
