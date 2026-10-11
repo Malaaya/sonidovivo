@@ -1,142 +1,179 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Registro de Clientes - Sonido Vivo Viña del Mar.">
-    <title>Crear Cuenta | Sonido Vivo</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23d00000'/><text x='32' y='36' font-family='Arial, sans-serif' font-style='italic' font-weight='bold' font-size='38' fill='%23ffffff' text-anchor='middle' dominant-baseline='central' letter-spacing='-4'>sv</text></svg>">
-    <link rel="stylesheet" href="css/main.css">
-</head>
-<body>
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { limpiarRun, validarRutChileno } from '../utils/rut'
+import Espacio from '../components/Espacio'
+import Modal from '../components/Modal'
 
-    <!-- Header Superior -->
-    <header class="site-header">
-    <div class="top-bar">
-      <div class="brand-logo">
-        <a href="index.html">SONIDO <span>VIVO</span></a>
-      </div>
+const VALORES_INICIALES = {
+  run: '',
+  nombre: '',
+  email: '',
+  telefono: '',
+  password: '',
+  confirm: '',
+}
 
-      <div class="header-search-bar">
-        <input type="text" id="header-search-input" placeholder="Buscar en catálogo...">
-        <button type="button" id="btn-header-search">Buscar</button>
-      </div>
+const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-      <div class="user-actions">
-        <a href="login.html" class="btn-auth-pill">¿Ya tienes cuenta? Inicia Sesión</a>
-        <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">🛒
-          <span class="cart-badge-count" id="cart-count">0</span>
-        </a>
-      </div>
-    </div>
+export default function Registro() {
+  const { registrar } = useAuth()
+  const navigate = useNavigate()
 
-    <nav class="sub-nav-bar" aria-label="Navegación principal">
-      <div class="sub-nav-container">
-        <!-- Menu Hamburguesa -->
-        <details class="hamburger-menu">
-          <summary class="hamburger-btn">
-            <span>☰</span> Categorías
-          </summary>
-          <ul class="hamburger-dropdown">
-            <li><a href="productos.html">Todos los productos</a></li>
-            <li><a href="productos.html?cat=guitarras">Guitarras</a></li>
-            <li><a href="productos.html?cat=bajos">Bajos Eléctricos</a></li>
-            <li><a href="productos.html?cat=amplis">Amplificadores</a></li>
-            <li><a href="productos.html?cat=pedales">Pedales de Efectos</a></li>
-            <li><a href="productos.html?cat=baterias">Baterías & Percusión</a></li>
-            <li><a href="productos.html?cat=teclados">Teclados y Pianos</a></li>
-          </ul>
-        </details>
+  const [valores, setValores] = useState(VALORES_INICIALES)
+  const [errores, setErrores] = useState({})
+  const [registrado, setRegistrado] = useState(false)
 
-        <!-- Links Principales -->
-        <ul class="main-nav-links">
-          <li><a href="index.html">Inicio</a></li>
-          <li><a href="productos.html">Ver Catálogo</a></li>
-          <li><a href="nosotros.html">Sobre Nosotros</a></li>
-          <li><a href="contacto.html">Contacto</a></li>
-          <li><a href="admin/home.html">Portal Admin</a></li>
-        </ul>
-      </div>
-    </nav>
-    </header>
+  const cambiar = (campo) => (e) => {
+    const valor = campo === 'run' ? limpiarRun(e.target.value) : e.target.value
+    setValores((prev) => ({ ...prev, [campo]: valor }))
+  }
 
-    <!-- Formulario de Registro -->
-    <main style="max-width: 600px; margin: 3rem auto; padding: 0 1.5rem;">
-    <div style="background: #ffffff; padding: 2.5rem; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-      
-      <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: #0f172a;">Crear Cuenta de Cliente</h2>
-      <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 2rem;">Regístrate para comprar instrumentos y gestionar tus despachos.</p>
+  const manejarSubmit = (e) => {
+    e.preventDefault()
 
-      <form id="form-registro" novalidate>
-        
-        <!-- RUT -->
-        <div style="margin-bottom: 1.2rem;">
-          <label for="run" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem;">RUN (Sin puntos y con guion)</label>
-          <input type="text" id="run" name="run" maxlength="10" placeholder="Ej: 19876543-K" style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.95rem;" required>
-          <span class="msg-error" id="error-run" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.3rem;"></span>
-        </div>
+    const run = valores.run.trim()
+    const nombre = valores.nombre.trim()
+    const email = valores.email.trim()
+    const telefono = valores.telefono.trim()
+    const { password, confirm } = valores
 
-        <!-- Nombre Completo -->
-        <div style="margin-bottom: 1.2rem;">
-          <label for="nombre" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem;">Nombre Completo</label>
-          <input type="text" id="nombre" name="nombre" placeholder="Nombre y Apellido" style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.95rem;" required>
-          <span class="msg-error" id="error-nombre" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.3rem;"></span>
-        </div>
+    const nuevosErrores = {}
 
-        <!-- Correo Electrónico -->
-        <div style="margin-bottom: 1.2rem;">
-          <label for="email" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem;">Correo Electrónico</label>
-          <input type="email" id="email" name="email" placeholder="usuario@correo.cl" style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.95rem;" required>
-          <span class="msg-error" id="error-email" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.3rem;"></span>
-        </div>
+    if (!validarRutChileno(run)) {
+      nuevosErrores.run = 'El RUN ingresado no es válido (ej: 12345678-5).'
+    }
+    if (nombre.length < 3) {
+      nuevosErrores.nombre = 'Ingrese un nombre y apellido válido.'
+    }
+    if (!REGEX_EMAIL.test(email)) {
+      nuevosErrores.email = 'Ingrese un correo electrónico válido.'
+    }
+    if (telefono.length < 9) {
+      nuevosErrores.telefono = 'Ingrese un teléfono de contacto válido.'
+    }
+    if (password.length < 6) {
+      nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres.'
+    } else if (password !== confirm) {
+      nuevosErrores.confirm = 'Las contraseñas no coinciden.'
+    }
 
-        <!-- Teléfono -->
-        <div style="margin-bottom: 1.2rem;">
-          <label for="telefono" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem;">Teléfono de Contacto</label>
-          <input type="tel" id="telefono" name="telefono" maxlength="12" placeholder="+56 9 1234 5678" style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.95rem;" required>
-          <span class="msg-error" id="error-telefono" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.3rem;"></span>
-        </div>
+    if (Object.keys(nuevosErrores).length > 0) {
+      setErrores(nuevosErrores)
+      return
+    }
 
-        <!-- Contraseña -->
-        <div style="margin-bottom: 1.2rem;">
-          <label for="password" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem;">Contraseña (Mínimo 6 caracteres)</label>
-          <input type="password" id="password" name="password" maxlength="30" style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.95rem;" required>
-          <span class="msg-error" id="error-password" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.3rem;"></span>
-        </div>
+    if (!registrar({ run, nombre, email, telefono, password })) {
+      setErrores({ run: 'RUN ya registrado.' })
+      return
+    }
 
-        <!-- Confirmar Contraseña -->
-        <div style="margin-bottom: 1.8rem;">
-          <label for="confirm-password" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem;">Confirmar Contraseña</label>
-          <input type="password" id="confirm-password" name="confirm-password" maxlength="30" style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.95rem;" required>
-          <span class="msg-error" id="error-confirm" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.3rem;"></span>
-        </div>
+    setErrores({})
+    setRegistrado(true)
+  }
 
-        <!-- Botón de Envío -->
-        <button type="submit" class="btn-slide-cta" style="width: 100%; padding: 0.9rem; border: none; font-size: 1rem; cursor: pointer; text-align: center;">
-          Registrarme
-        </button>
-
-        </form>
-    </div>
-    </main>
-
-    <!-- Script específico de registro -->
-     <script src="js/login.js"></script>
-    <script src="js/registro.js"></script>
-
-    <!-- Modal de confirmación de Registro -->
-    <div id="modal-exito-registro" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center;">
-        <div style="background: #ffffff; padding: 2.5rem; border-radius: 16px; max-width: 450px; width: 90%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);">
-        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎸</div>
-        <h3 style="font-size: 1.5rem; color: #0f172a; margin-bottom: 0.8rem; font-weight: 800;">¡Cuenta Creada con Éxito!</h3>
-        <p style="color: #475569; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.8rem;">
-        Bienvenido a Sonido Vivo. Tus datos han sido registrados en el sistema y ya puedes iniciar sesión para gestionar tus pedidos.
+  return (
+    <main style={{ maxWidth: '600px', margin: '3rem auto', padding: '0 1.5rem' }}>
+      <div
+        style={{
+          background: '#ffffff',
+          padding: '2.5rem',
+          borderRadius: '10px',
+          border: '1px solid var(--border-color)',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+        }}
+      >
+        <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', color: '#0f172a' }}>
+          Crear Cuenta de Cliente
+        </h2>
+        <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '2rem' }}>
+          Regístrate para comprar instrumentos y gestionar tus despachos.
         </p>
-        <button id="btn-ir-login" style="background: var(--accent-pink, #e91e63); color: #ffffff; font-weight: 700; border: none; padding: 0.8rem 1.8rem; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: background 0.2s;">
-        Ir a Iniciar Sesión
-        </button>
-        </div>
-    </div>
 
-</body>
-</html>
+        <form onSubmit={manejarSubmit} noValidate>
+          <Espacio
+            id="run"
+            label="RUN (Sin puntos y con guion)"
+            type="text"
+            maxLength={10}
+            placeholder="Ej: 12345678-5"
+            value={valores.run}
+            onChange={cambiar('run')}
+            error={errores.run}
+          />
+          <Espacio
+            id="nombre"
+            label="Nombre Completo"
+            type="text"
+            placeholder="Nombre y Apellido"
+            value={valores.nombre}
+            onChange={cambiar('nombre')}
+            error={errores.nombre}
+          />
+          <Espacio
+            id="email"
+            label="Correo Electrónico"
+            type="email"
+            placeholder="usuario@correo.cl"
+            value={valores.email}
+            onChange={cambiar('email')}
+            error={errores.email}
+          />
+          <Espacio
+            id="telefono"
+            label="Teléfono de Contacto"
+            type="tel"
+            maxLength={12}
+            placeholder="+56 9 1234 5678"
+            value={valores.telefono}
+            onChange={cambiar('telefono')}
+            error={errores.telefono}
+          />
+          <Espacio
+            id="password"
+            label="Contraseña (Mínimo 6 caracteres)"
+            type="password"
+            maxLength={30}
+            value={valores.password}
+            onChange={cambiar('password')}
+            error={errores.password}
+          />
+          <Espacio
+            id="confirm-password"
+            label="Confirmar Contraseña"
+            type="password"
+            maxLength={30}
+            margen="1.8rem"
+            value={valores.confirm}
+            onChange={cambiar('confirm')}
+            error={errores.confirm}
+          />
+
+          <button
+            type="submit"
+            className="btn-slide-cta"
+            style={{
+              width: '100%',
+              padding: '0.9rem',
+              border: 'none',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              textAlign: 'center',
+            }}
+          >
+            Registrarme
+          </button>
+        </form>
+      </div>
+
+      {registrado && (
+        <Modal
+          emoji="🎸"
+          titulo="¡Cuenta Creada con Éxito!"
+          botones={[{ texto: 'Ir a Iniciar Sesión', onClick: () => navigate('/login') }]}
+        > Bienvenido a Sonido Vivo. Ya puedes iniciar sesión para gestionar tus pedidos.
+        </Modal>
+      )}
+    </main>
+  )
+}
