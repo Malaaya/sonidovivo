@@ -1,6 +1,9 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useCarrito } from '../context/CarritoContext'
+import { useAuth } from '../context/AuthContext'
 import { clp } from '../utils/formato'
+import Modal from '../components/Modal'
 
 const tarjeta = {
   background: '#ffffff',
@@ -14,11 +17,61 @@ const botonCantidad = { padding: '0.2rem 0.6rem', cursor: 'pointer' }
 export default function Carrito() {
   const { carrito, total, cambiarCantidad, eliminarDelCarrito, vaciarCarrito } = useCarrito()
 
+  const { usuario } = useAuth()
+  const navigate = useNavigate()
+  const [mostrarModalPago, setMostrarModalPago] = useState(false)
+  const [ordenDetalle, setOrdenDetalle] = useState(null)
+  const [errorPago, setErrorPago] = useState('')
+
   const confirmarVaciar = () => {
     if (confirm('¿Estás seguro de que deseas vaciar el carrito?')) vaciarCarrito()
   }
 
-  const procesarPago = () => {}
+  const procesarPago = () => {
+    setErrorPago('')
+    if (!usuario) {
+      alert('Debes iniciar sesión para realizar el pago.')
+      navigate('/login')
+      return
+    }
+    if (carrito.length === 0) {
+      setErrorPago('Tu carrito está vacío. Agrega productos antes de pagar.')
+      return
+    }
+    const nuevaOrden = {
+      id: `ORD-${Date.now()}`,
+      fecha: new Date().toLocaleDateString('es-CL', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      items: [...carrito],
+      total: total,
+      cliente: {
+        nombre: usuario.nombre,
+        run: usuario.run,
+        correo: usuario.correo,
+      },
+    }
+    const claveHistorial = `historial_${usuario.run}`
+    const historialPrevio = JSON.parse(localStorage.getItem(claveHistorial) || '[]')
+    localStorage.setItem(claveHistorial, JSON.stringify([nuevaOrden, ...historialPrevio]))
+
+    const ventasGlobales = JSON.parse(localStorage.getItem('sonido_vivo_ventas') || '[]')
+    localStorage.setItem('sonido_vivo_ventas', JSON.stringify([nuevaOrden, ...ventasGlobales]))
+
+    setOrdenDetalle(nuevaOrden)
+    setMostrarModalPago(true)
+    vaciarCarrito()
+
+  }
+    const handleCerrarModal = () => {
+    setMostrarModalPago(false)
+    navigate('/perfil')
+  
+  }
 
   return (
     <main style={{ maxWidth: '1100px', margin: '2.5rem auto', padding: '0 1rem' }}>
@@ -26,6 +79,11 @@ export default function Carrito() {
         Tu Carrito de Compras
       </h2>
 
+      {errorPago && (
+        <div style={{ padding: '0.8rem', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '6px', marginBottom: '1rem' }}>
+          {errorPago}
+        </div>
+      )}
       <div
         style={{
           display: 'grid',
@@ -218,228 +276,41 @@ export default function Carrito() {
           </button>
         </section>
       </div>
-    </main>
-  )
-}import { Link } from 'react-router-dom'
-import { useCarrito } from '../context/CarritoContext'
-import { clp } from '../utils/formato'
 
-const tarjeta = {
-  background: '#ffffff',
-  borderRadius: '12px',
-  border: '1px solid #e2e8f0',
-  padding: '1.5rem',
-}
+      {mostrarModalPago && ordenDetalle && (
+        <Modal titulo="¡Pago Aprobado con Éxito!" onClose={handleCerrarModal}>
+          <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+            <div style={{ fontSize: '3rem', color: '#10b981', marginBottom: '0.5rem' }}>✓</div>
+            <h3>Orden {ordenDetalle.id}</h3>
+            <p>Gracias por tu compra, <strong>{ordenDetalle.cliente.nombre}</strong>.</p>
+            <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
+              Comprobante enviado a <strong>{ordenDetalle.cliente.correo}</strong>.
+            </p>
 
-const botonCantidad = { padding: '0.2rem 0.6rem', cursor: 'pointer' }
+            <div style={{ ...tarjeta, textAlign: 'left', margin: '1rem 0', backgroundColor: '#f8fafc' }}>
+              <p><strong>Fecha:</strong> {ordenDetalle.fecha}</p>
+              <p><strong>Total Pagado:</strong> {clp(ordenDetalle.total)}</p>
+              <p><strong>Ítems comprados:</strong> {ordenDetalle.items.length}</p>
+            </div>
 
-export default function Carrito() {
-  const { carrito, total, cambiarCantidad, eliminarDelCarrito, vaciarCarrito } = useCarrito()
-
-  const confirmarVaciar = () => {
-    if (confirm('¿Estás seguro de que deseas vaciar el carrito?')) vaciarCarrito()
-  }
-
-  const procesarPago = () => {}
-
-  return (
-    <main style={{ maxWidth: '1100px', margin: '2.5rem auto', padding: '0 1rem' }}>
-      <h2 style={{ fontSize: '2rem', color: '#0f172a', marginBottom: '1.5rem' }}>
-        Tu Carrito de Compras
-      </h2>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '2rem',
-          alignItems: 'start',
-        }}
-      >
-        <section style={{ ...tarjeta, overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr
-                style={{
-                  borderBottom: '2px solid #f1f5f9',
-                  color: '#475569',
-                  fontSize: '0.85rem',
-                }}
-              >
-                <th style={{ padding: '0.8rem' }}>Producto</th>
-                <th style={{ padding: '0.8rem' }}>Precio</th>
-                <th style={{ padding: '0.8rem' }}>Cantidad</th>
-                <th style={{ padding: '0.8rem' }}>Subtotal</th>
-                <th style={{ padding: '0.8rem', textAlign: 'center' }}>Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              {carrito.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}
-                  >
-                    Tu carrito está vacío.
-                    <br />
-                    <br />
-                    <Link to="/productos" style={{ color: '#0f172a', fontWeight: 'bold' }}>
-                      Explorar el catálogo
-                    </Link>
-                  </td>
-                </tr>
-              ) : (
-                carrito.map((item) => (
-                  <tr key={item.codigo} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                    <td
-                      style={{
-                        padding: '1rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '1rem',
-                      }}
-                    >
-                      <img
-                        src={item.imagen}
-                        alt={item.nombre}
-                        style={{
-                          width: '50px',
-                          height: '50px',
-                          objectFit: 'cover',
-                          borderRadius: '6px',
-                        }}
-                      />
-                      <div>
-                        <strong
-                          style={{ color: '#000000', display: 'block', fontSize: '0.95rem' }}
-                        >
-                          {item.nombre}
-                        </strong>
-                        <span style={{ color: '#e91e63', fontSize: '0.8rem', fontWeight: 600 }}>
-                          {item.marca}
-                        </span>
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem', color: '#000000', fontWeight: 600 }}>
-                      {clp(item.precio)}
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <button
-                          style={botonCantidad}
-                          onClick={() => cambiarCantidad(item.codigo, -1)}
-                        >
-                          -
-                        </button>
-                        <span style={{ fontWeight: 700, color: '#000000' }}>
-                          {item.cantidad}
-                        </span>
-                        <button
-                          style={botonCantidad}
-                          onClick={() => cambiarCantidad(item.codigo, 1)}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem', color: '#000000', fontWeight: 800 }}>
-                      {clp(item.precio * item.cantidad)}
-                    </td>
-                    <td style={{ padding: '1rem', textAlign: 'center' }}>
-                      <button
-                        onClick={() => eliminarDelCarrito(item.codigo)}
-                        title="Eliminar"
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#ef4444',
-                          cursor: 'pointer',
-                          fontSize: '1.2rem',
-                        }}
-                      >
-                        🗑️
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-
-          <div style={{ marginTop: '1.5rem', textAlign: 'right' }}>
             <button
-              onClick={confirmarVaciar}
+              onClick={handleCerrarModal}
               style={{
-                background: 'none',
-                border: '1px solid #ef4444',
-                color: '#ef4444',
-                padding: '0.5rem 1rem',
+                width: '100%',
+                padding: '0.8rem',
+                backgroundColor: '#0f172a',
+                color: '#ffffff',
+                border: 'none',
                 borderRadius: '6px',
+                fontWeight: 'bold',
                 cursor: 'pointer',
-                fontWeight: 600,
               }}
             >
-              Vaciar Carrito
+              Ver en Mi Historial de Compras
             </button>
           </div>
-        </section>
-
-        <section style={{ ...tarjeta, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-          <h3
-            style={{
-              fontSize: '1.25rem',
-              color: '#0f172a',
-              marginBottom: '1.2rem',
-              borderBottom: '2px solid #f1f5f9',
-              paddingBottom: '0.5rem',
-            }}
-          >
-            Resumen del Pedido
-          </h3>
-
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '0.8rem',
-              color: '#475569',
-            }}
-          >
-            <span>Subtotal:</span>
-            <strong style={{ color: '#000000' }}>{clp(total)}</strong>
-          </div>
-
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '1.2rem',
-              color: '#475569',
-            }}
-          >
-            <span>Envío:</span>
-            <span style={{ color: '#10b981', fontWeight: 600 }}>Calculado en el checkout</span>
-          </div>
-
-          <hr style={{ border: 0, borderTop: '1px solid #e2e8f0', marginBottom: '1.2rem' }} />
-
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '1.5rem',
-              fontSize: '1.2rem',
-            }}
-          >
-            <strong style={{ color: '#0f172a' }}>Total:</strong>
-            <strong style={{ color: '#000000', fontSize: '1.3rem' }}>{clp(total)}</strong>
-          </div>
-
-          <button onClick={procesarPago} className="btn-primary-block">
-            Pagar con Webpay
-          </button>
-        </section>
-      </div>
+        </Modal>
+      )}
     </main>
   )
 }
