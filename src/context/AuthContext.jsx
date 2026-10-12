@@ -43,7 +43,13 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ usuarios, sesion, registrar, login, logout }}>
+    <AuthContext.Provider
+  value={{
+    usuarios, sesion, usuario: sesion,
+    esAdmin: sesion?.rol === 'admin',
+    registrar, login, logout, cerrarSesion: logout,
+  }}
+>
       {children}
     </AuthContext.Provider>
   )

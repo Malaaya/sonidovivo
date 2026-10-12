@@ -1,14 +1,39 @@
-import { validarRutChileno } from './utils/rut'
-import { clp, primerNombre } from './utils/formato'
-import { guardar, leer, eliminar } from './utils/storage'
-
-console.log(validarRutChileno('12345678-5'), validarRutChileno('19876543-4'))
-console.log(clp(129990), primerNombre('Ángel Martín'))
-
-guardar('prueba', { a: 1 })
-console.log(leer('prueba', null), leer('no_existe', 'por defecto'))
-eliminar('prueba')
+import { Navigate, Route, Routes } from 'react-router-dom'
+import Layout from './components/Layout'
+import RutaProtegida from './components/RutaProtegida'
+import Index from './pages/index'
+import Productos from './pages/productos'
+import Nosotros from './pages/nosotros'
+import Contacto from './pages/contacto'
+import Login from './pages/login'
+import Registro from './pages/registro'
+import Carrito from './pages/carrito'
+import Perfil from './pages/perfil'
 
 export default function App() {
-  return <h1>Prueba utilidades</h1>
+  return (
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/productos" element={<Productos />} />
+        <Route path="/nosotros" element={<Nosotros />} />
+        <Route path="/contacto" element={<Contacto />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+        <Route path="/carrito" element={<Carrito />} />
+        <Route
+          path="/perfil"
+          element={
+            <RutaProtegida
+              redirigirA="/login"
+              mensaje="Debes iniciar sesión para acceder a tu perfil."
+            >
+              <Perfil />
+            </RutaProtegida>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Layout>
+  )
 }
