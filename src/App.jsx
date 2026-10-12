@@ -9,20 +9,21 @@ import Login from './pages/login'
 import Registro from './pages/registro'
 import Carrito from './pages/carrito'
 import Perfil from './pages/perfil'
+import Admin from './pages/admin'
 
 export default function App() {
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/productos" element={<Productos />} />
-        <Route path="/nosotros" element={<Nosotros />} />
-        <Route path="/contacto" element={<Contacto />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/registro" element={<Registro />} />
-        <Route path="/carrito" element={<Carrito />} />
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<Index />} />
+        <Route path="productos" element={<Productos />} />
+        <Route path="nosotros" element={<Nosotros />} />
+        <Route path="contacto" element={<Contacto />} />
+        <Route path="login" element={<Login />} />
+        <Route path="registro" element={<Registro />} />
+        <Route path="carrito" element={<Carrito />} />
         <Route
-          path="/perfil"
+          path="perfil"
           element={
             <RutaProtegida
               redirigirA="/login"
@@ -32,8 +33,20 @@ export default function App() {
             </RutaProtegida>
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Layout>
+      </Route>
+      <Route
+        path="admin"
+        element={
+          <RutaProtegida
+            rol="admin"
+            redirigirA="/"
+            mensaje="Acceso denegado: Se requieren credenciales de Administrador."
+          >
+            <Admin />
+          </RutaProtegida>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }

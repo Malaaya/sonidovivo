@@ -3,6 +3,7 @@ import { useProductos } from '../context/ProductosContext'
 import ProductoCard from '../components/ProductoCard'
 
 const CODIGOS_EN_OFERTA = ['GA001', 'GA002', 'GA003', 'GA004']
+const TITULOS_CATEGORIA = { guitarras: 'Guitarras' }
 
 export default function Productos() {
   const { productos } = useProductos()
@@ -15,7 +16,9 @@ export default function Productos() {
 
   if (cat) {
     productosAMostrar = productos.filter((p) => p.catSlug === cat.toLowerCase())
-    if (productosAMostrar.length > 0) titulo = productosAMostrar[0].categoria
+      if (productosAMostrar.length > 0) {
+        titulo = TITULOS_CATEGORIA[cat.toLowerCase()] || productosAMostrar[0].categoria
+    }
   } else if (buscar) {
     const q = buscar.toLowerCase()
     productosAMostrar = productos.filter(
