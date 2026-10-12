@@ -1,98 +1,211 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useCarrito } from '../context/CarritoContext';
+import { useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { useCarrito } from '../context/CarritoContext'
+import { primerNombre } from '../utils/formato'
+import EnlaceAdmin from './EnlaceAdmin'
 
-export default function Header() {
-  const { usuario, esAdmin, cerrarSesion } = useAuth();
-  const { cantidadTotal } = useCarrito();
-  const [busqueda, setBusqueda] = useState('');
-  const navigate = useNavigate();
+const CATEGORIAS = [
+  { slug: 'guitarras', nombre: 'Guitarras' },
+  { slug: 'bajos', nombre: 'Bajos Eléctricos' },
+  { slug: 'amplis', nombre: 'Amplificadores' },
+  { slug: 'pedales', nombre: 'Pedales de Efectos' },
+  { slug: 'baterias', nombre: 'Baterías & Percusión' },
+  { slug: 'teclados', nombre: 'Teclados y Pianos' },
+]
 
-  const handleBuscar = (e) => {
-    e.preventDefault();
-    if (busqueda.trim()) {
-      navigate(`/productos?q=${encodeURIComponent(busqueda.trim())}`);
-    } else {
-      navigate('/productos');
-    }
-  };
+function BotonAuth() {
+  const { sesion } = useAuth()
+  const { pathname } = useLocation()
 
-  return (
-    <header className="site-header">
-      <div className="header-top">
-        <div className="container header-top-content">
-          <Link to="/" className="logo">
-            <h1>Sonido<span>Vivo</span></h1>
-          </Link>
+  if (sesion?.nombre) {
+    const nombre = primerNombre(sesion.nombre)
+    return sesion.rol === 'admin' ? (
+      <Link to="/admin" className="btn-auth-pill">
+        Admin: {nombre}
+      </Link>
+    ) : (
+      <Link to="/perfil" className="btn-auth-pill">
+        👋 Hola, {nombre}
+      </Link>
+    )
+  }
 
-          {/* Buscador */}
-          <form className="search-form" onSubmit={handleBuscar}>
-            <input 
-              type="text" 
-              placeholder="Buscar guitarras, baterías, micrófonos..." 
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
-            <button type="submit" aria-label="Buscar">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-            </button>
-          </form>
+  return pathname === '/login' ? (
+    <Link to="/registro" className="btn-auth-pill">
+      Crear Cuenta
+    </Link>
+  ) : (
+    <Link to="/login" className="btn-auth-pill">
+      Acceder / Registro
+    </Link>
+  )
+}
 
-          {/* Menú Usuario & Carrito */}
-          <div className="header-actions">
-            {usuario ? (
-              <div className="user-menu">
-                <span className="user-greeting">Hola, <strong>{usuario.nombre || 'Cliente'}</strong></span>
-                <div className="user-links">
-                  <Link to="/perfil" className="btn-link">Mi Perfil</Link>
-                  {esAdmin && (
-                    <Link to="/admin" className="btn-admin-link">
-                      Admin
-                    </Link>
-                  )}
-                  <button onClick={cerrarSesion} className="btn-logout">Salir</button>
-                </div>
-              </div>
-            ) : (
-              <div className="auth-links">
-                <Link to="/login" className="btn-secondary-sm">Ingresar</Link>
-                <Link to="/registro" className="btn-primary-sm">Registrarse</Link>
-              </div>
-            )}
+export default function Header({ variante = 'completo' }) {
+  const [busqueda, setBusqueda] = useState('')
+  const { totalItems } = useCarrito()
+  const navigate = useNavigate()
+  const location = useLocation()
 
-            {/* Carrito Icono */}
-            <Link to="/carrito" className="cart-button" aria-label="Ver Carrito">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <path d="M16 10a4 4 0 0 1-8 0"></path>
-              </svg>
-              {cantidadTotal > 0 && (
-                <span className="cart-badge">{cantidadTotal}</span>
-              )}
+  const buscar = () => {
+    const query = busqueda.trim()
+    if (query.length > 0) navigate(`/productos?buscar=${encodeURIComponent(query)}`)
+  }
+
+  if (variante === 'simple') {
+    return (
+      <header className="site-header">
+        <div
+          className="top-bar"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            position: 'relative',
+          }}
+        >
+          <div className="brand-logo">
+            <Link to="/">
+              SONIDO <span>VIVO</span>
+            </Link>
+          </div>
+
+          <div
+            className="user-center"
+            style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}
+          >
+            <BotonAuth />
+          </div>
+
+          <div className="user-actions">
+            <Link to="/productos" className="btn-catalog-link">
+              ← Volver al Catálogo
             </Link>
           </div>
         </div>
+      </header>
+    )
+  }
+
+  return (
+    <header className="site-header">
+      <div className="top-bar">
+        <div className="brand-logo">
+          <Link to="/">
+            SONIDO <span>VIVO</span>
+          </Link>
+        </div>
+
+        <div className="header-search-bar">
+          <input
+            type="text"
+            placeholder="Buscar en catálogo..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && buscar()}
+          />
+          <button type="button" onClick={buscar}>
+            Buscar
+          </button>
+        </div>
+
+        <div className="user-actions">
+          <BotonAuth />
+          <Link to="/carrito" className="cart-icon-btn" title="Ver Carrito">
+            🛒
+            <span className="cart-badge-count">{totalItems}</span>
+          </Link>
+        </div>
       </div>
 
-      {/* Navegación por Categorías/Secciones */}
-      <nav className="site-nav">
-        <div className="container nav-content">
-          <ul className="nav-list">
-            <li><Link to="/">Inicio</Link></li>
-            <li><Link to="/productos">Catálogo Completo</Link></li>
-            <li><Link to="/productos?categoria=guitarras">Guitarras</Link></li>
-            <li><Link to="/productos?categoria=baterias">Baterías</Link></li>
-            <li><Link to="/productos?categoria=audio">Audio & Microfonos</Link></li>
-            <li><Link to="/nosotros">Nosotros</Link></li>
-            <li><Link to="/contacto">Contacto</Link></li>
+      <nav className="sub-nav-bar" aria-label="Navegación principal">
+        <div className="sub-nav-container">
+          <details className="hamburger-menu" key={location.key}>
+            <summary className="hamburger-btn">
+              <span>☰</span> Categorías
+            </summary>
+            <ul className="hamburger-dropdown">
+              <li>
+                <Link to="/productos">Todos los productos</Link>
+              </li>
+              {CATEGORIAS.map(({ slug, nombre }) => (
+                <li key={slug}>
+                  <Link to={`/productos?cat=${slug}`}>{nombre}</Link>
+                </li>
+              ))}
+            </ul>
+          </details>
+
+          <ul className="main-nav-links">
+            <li>
+              <Link to="/">Inicio</Link>
+            </li>
+            <li>
+              <Link to="/productos">Ver Catálogo</Link>
+            </li>
+            <li>
+              <Link to="/nosotros">Sobre Nosotros</Link>
+            </li>
+            <li>
+              <Link to="/contacto">Contacto</Link>
+            </li>
+            <li>
+              <EnlaceAdmin>Portal Admin</EnlaceAdmin>
+            </li>
           </ul>
         </div>
       </nav>
     </header>
-  );
+  )
+}
+
+export function HeaderAdmin() {
+  const { logout } = useAuth()
+  const navigate = useNavigate()
+
+  const cerrarSesion = () => {
+    if (confirm('¿Estás seguro de que deseas cerrar la sesión de administrador?')) {
+      logout()
+      navigate('/')
+    }
+  }
+
+  return (
+    <header className="site-header">
+      <div
+        className="top-bar"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+      >
+        <div className="brand-logo">
+          <Link to="/">
+            SONIDO <span>VIVO</span> (PANEL ADMIN)
+          </Link>
+        </div>
+        <div
+          className="user-actions"
+          style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}
+        >
+          <Link to="/productos" className="btn-catalog-link">
+            ← Ver Tienda
+          </Link>
+          <button
+            onClick={cerrarSesion}
+            style={{
+              backgroundColor: '#ef4444',
+              color: '#fff',
+              border: 'none',
+              padding: '0.5rem 1rem',
+              borderRadius: '20px',
+              fontSize: '0.88rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    </header>
+  )
 }
