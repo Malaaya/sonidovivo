@@ -9,6 +9,7 @@ import Login from './pages/login'
 import Registro from './pages/registro'
 import Carrito from './pages/carrito'
 import Perfil from './pages/perfil'
+import Admin from './pages/admin'
 
 export default function App() {
   return (
@@ -26,13 +27,25 @@ export default function App() {
           element={
             <RutaProtegida
               redirigirA="/login"
-              mensaje="Debes iniciar sesiÃ³n para acceder a tu perfil."
+              mensaje="Debes iniciar sesión para acceder a tu perfil."
             >
               <Perfil />
             </RutaProtegida>
           }
         />
       </Route>
+      <Route
+        path="admin"
+        element={
+          <RutaProtegida
+            rol="admin"
+            redirigirA="/"
+            mensaje="Acceso denegado: Se requieren credenciales de Administrador."
+          >
+            <Admin />
+          </RutaProtegida>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
