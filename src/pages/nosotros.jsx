@@ -1,117 +1,101 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sobre Nosotros - Sonido Vivo</title>
+import { Link } from 'react-router-dom'
 
-  <!-- Favicon oficial SV -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23d00000'/><text x='32' y='36' font-family='Arial, sans-serif' font-style='italic' font-weight='bold' font-size='38' fill='%23ffffff' text-anchor='middle' dominant-baseline='central' letter-spacing='-4'>sv</text></svg>">
+const tarjeta = {
+  background: '#ffffff',
+  borderRadius: '12px',
+  border: '1px solid #e2e8f0',
+  padding: '2rem',
+}
 
-  <link rel="stylesheet" href="css/main.css?v=4">
-</head>
-<body>
-
-  <!-- Encabezado de la página -->
-  <header class="site-header">
-    <div class="top-bar">
-      <div class="brand-logo">
-        <a href="index.html">SONIDO <span>VIVO</span></a>
-      </div>
-      <div class="header-search-bar">
-        <input type="text" id="search-input" placeholder="Buscar producto, marca o categoría...">
-        <button type="button" id="search-button">Buscar</button>
-      </div>
-      <div class="user-actions">
-        <a href="index.html" class="btn-auth-pill">← Volver al Inicio</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Contenido Principal -->
-  <main class="shop-section-container" style="max-width: 1100px; margin: 2.5rem auto; padding: 0 1rem;">
-    
-    <!-- Hero / Presentación -->
-    <div style="text-align: center; margin-bottom: 3rem;">
-      <h2 style="font-size: 2.2rem; color: #0f172a; margin-bottom: 0.8rem; font-weight: 800;">Pasión por la Música y el Sonido</h2>
-      <p style="color: #64748b; font-size: 1.1rem; max-width: 700px; margin: 0 auto; line-height: 1.6;">
-        En <strong>Sonido Vivo</strong> nos dedicamos a equipar a músicos, productores y entusiastas del audio con los mejores instrumentos.
-      </p>
-    </div>
-
-    <!-- Valores y Pilares (3 Columnas) -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.8rem; margin-bottom: 3.5rem;">
-      
-      <div style="background: #ffffff; padding: 2rem; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-        <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">🎸</div>
-        <h3 style="font-size: 1.2rem; color: #0f172a; margin-bottom: 0.5rem; font-weight: 700;">Catálogo Seleccionado</h3>
-        <p style="color: #475569; font-size: 0.9rem; line-height: 1.5;">
-          Ofrecemos más de 300 referencias de las marcas más reconocidas a nivel mundial, garantizando calidad y durabilidad en cada producto.
+export default function Nosotros() {
+  return (
+    <main style={{ maxWidth: '1100px', margin: '2.5rem auto', padding: '0 1rem' }}>
+      {/* Banner / Encabezado */}
+      <section style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <h2 style={{ fontSize: '2.5rem', color: '#0f172a', marginBottom: '1rem' }}>
+          Sobre <span style={{ color: '#e91e63' }}>Sonido Vivo</span>
+        </h2>
+        <p style={{ fontSize: '1.1rem', color: '#64748b', maxWidth: '700px', margin: '0 auto' }}>
+          Pasión por la música, compromiso con la calidad y los mejores instrumentos musicales de Chile al alcance de todos.
         </p>
-      </div>
+      </section>
 
-      <div style="background: #ffffff; padding: 2rem; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-        <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">🤝</div>
-        <h3 style="font-size: 1.2rem; color: #0f172a; margin-bottom: 0.5rem; font-weight: 700;">Asesoría Especializada</h3>
-        <p style="color: #475569; font-size: 0.9rem; line-height: 1.5;">
-          Nuestro equipo está formado por músicos experimentados listos para orientarte en la elección del instrumento o equipo ideal para tu proyecto.
+      {/* Historia y Propósito */}
+      <section style={{ ...tarjeta, marginBottom: '2.5rem' }}>
+        <h3 style={{ fontSize: '1.5rem', color: '#0f172a', marginBottom: '1rem' }}>
+          Nuestra Historia
+        </h3>
+        <p style={{ color: '#475569', lineHeight: '1.7', marginBottom: '1rem' }}>
+          Sonido Vivo nació con la idea de brindar a músicos principiantes, aficionados y profesionales una experiencia de compra transparente, rápida y confiable. Desde nuestras primeras guitarras y baterías hasta incorporar las marcas más prestigiosas de audio en el mundo, nos hemos posicionado como una tienda de referencia nacional.
         </p>
-      </div>
-
-      <div style="background: #ffffff; padding: 2rem; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-        <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">🚚</div>
-        <h3 style="font-size: 1.2rem; color: #0f172a; margin-bottom: 0.5rem; font-weight: 700;">Envíos Seguros</h3>
-        <p style="color: #475569; font-size: 0.9rem; line-height: 1.5;">
-          Despachamos de manera rápida y protegida, asegurando que tu equipamiento llegue en perfectas condiciones.
+        <p style={{ color: '#475569', lineHeight: '1.7' }}>
+          Creemos firmemente que la música transforma vidas, por lo que trabajamos día a día para mantener un catálogo diverso con precios accesibles y envíos a todo Chile.
         </p>
-      </div>
+      </section>
 
-    </div>
+      {/* Grid de Valores */}
+      <section
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '1.5rem',
+          marginBottom: '3rem',
+        }}
+      >
+        <div style={tarjeta}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🎸</div>
+          <h4 style={{ fontSize: '1.2rem', color: '#0f172a', marginBottom: '0.5rem' }}>
+            Calidad Garantizada
+          </h4>
+          <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: '1.5' }}>
+            Todos nuestros instrumentos y equipos de audio pasan por revisión e inspección previa para asegurar el estándar técnico.
+          </p>
+        </div>
 
-    <!-- Sección de Historia y Ubicación -->
-    <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 2.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-      <div>
-        <h3 style="font-size: 1.5rem; color: #0f172a; margin-bottom: 1rem; font-weight: 800;">Nuestra Casa Matriz</h3>
-        <p style="color: #475569; line-height: 1.6; margin-bottom: 1.2rem; font-size: 0.95rem;">
-          Ubicados en el corazón de <strong>Viña del Mar, Región de Valparaíso</strong>, contamos con un espacio acondicionado para que puedas probar instrumentos, recibir soporte técnico o gestionar tus compras directamente.
+        <div style={tarjeta}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🚚</div>
+          <h4 style={{ fontSize: '1.2rem', color: '#0f172a', marginBottom: '0.5rem' }}>
+            Envíos a Todo Chile
+          </h4>
+          <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: '1.5' }}>
+            Llegamos a cada rincón del país con empaques especiales de máxima protección para tus equipos.
+          </p>
+        </div>
+
+        <div style={tarjeta}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🤝</div>
+          <h4 style={{ fontSize: '1.2rem', color: '#0f172a', marginBottom: '0.5rem' }}>
+            Asesoría Personalizada
+          </h4>
+          <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: '1.5' }}>
+            Nuestro equipo está compuesto por músicos experimentados listos para guiarte en tu elección.
+          </p>
+        </div>
+      </section>
+
+      {/* Llamado a la acción */}
+      <section style={{ ...tarjeta, textAlign: 'center', backgroundColor: '#0f172a', color: '#ffffff' }}>
+        <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#ffffff' }}>
+          ¿Listo para encontrar tu próximo instrumento?
+        </h3>
+        <p style={{ color: '#94a3b8', marginBottom: '1.5rem' }}>
+          Explora nuestro catálogo completo de guitarras, baterías, teclados y audio profesional.
         </p>
-        <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; color: #334155; font-size: 0.9rem;">
-          <li>📍 <strong>Ubicación:</strong> Viña del Mar, Región de Valparaíso</li>
-          <li>⏰ <strong>Lun a Vie:</strong> 10:00 a 19:30 hrs</li>
-          <li>⏰ <strong>Sábados:</strong> 10:30 a 14:30 hrs</li>
-          <li>✉️ <strong>Contacto:</strong> contacto@sonidovivo.cl</li>
-        </ul>
-      </div>
-
-      <div style="text-align: center; background: #f8fafc; padding: 2rem; border-radius: 8px; border: 1px dashed #cbd5e1;">
-        <h4 style="font-size: 1.1rem; color: #0f172a; margin-bottom: 0.8rem;">¿Buscas algún producto en específico?</h4>
-        <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 1.2rem;">Revisa nuestro catálogo dinámico con stock actualizado en tiempo real.</p>
-        <a href="productos.html" style="display: inline-block; background: #0f172a; color: #ffffff; padding: 0.7rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 0.9rem;">Explorar Catálogo</a>
-      </div>
-    </div>
-
-  </main>
-<script src="js/login.js"></script>
-  <script>
-
-    
-    document.addEventListener("DOMContentLoaded", () => {
-      const searchBtn = document.getElementById('search-button');
-      const searchInput = document.getElementById('search-input');
-
-      if (searchBtn && searchInput) {
-        searchBtn.addEventListener('click', () => {
-          const query = searchInput.value.trim();
-          if (query) window.location.href = `productos.html?buscar=${encodeURIComponent(query)}`;
-        });
-        searchInput.addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') {
-            const query = e.target.value.trim();
-            if (query) window.location.href = `productos.html?buscar=${encodeURIComponent(query)}`;
-          }
-        });
-      }
-    });
-  </script>
-</body>
-</html>
+        <Link
+          to="/productos"
+          style={{
+            display: 'inline-block',
+            padding: '0.8rem 2rem',
+            backgroundColor: '#e91e63',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            borderRadius: '6px',
+            textDecoration: 'none',
+          }}
+        >
+          Ver Catálogo Completo
+        </Link>
+      </section>
+    </main>
+  )
+}

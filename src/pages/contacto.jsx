@@ -1,154 +1,251 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contacto - Sonido Vivo</title>
+import { useState } from 'react'
+import Modal from '../components/Modal'
 
-  <!-- Favicon oficial SV -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23e11d48'/><stop offset='100%25' stop-color='%23be123c'/></linearGradient></defs><rect width='64' height='64' rx='16' fill='url(%23grad)'/><text x='32' y='36' font-family='Arial, sans-serif' font-style='italic' font-weight='bold' font-size='38' fill='%23ffffff' text-anchor='middle' dominant-baseline='central' letter-spacing='-4'>sv</text></svg>">
+const tarjeta = {
+  background: '#ffffff',
+  borderRadius: '12px',
+  border: '1px solid #e2e8f0',
+  padding: '2rem',
+}
 
-  <link rel="stylesheet" href="css/main.css?v=4">
-</head>
-<body>
+const inputStyle = {
+  width: '100%',
+  padding: '0.75rem',
+  borderRadius: '6px',
+  border: '1px solid #cbd5e1',
+  fontSize: '0.95rem',
+  marginTop: '0.3rem',
+  marginBottom: '1rem',
+  boxSizing: 'border-box',
+}
 
-  <!-- Encabezado de la página -->
-  <header class="site-header">
-    <div class="top-bar">
-      <div class="brand-logo">
-        <a href="index.html">SONIDO <span>VIVO</span></a>
-      </div>
-      <div class="header-search-bar">
-        <input type="text" id="search-input" placeholder="Buscar producto, marca o categoría...">
-        <button type="button" id="search-button">Buscar</button>
-      </div>
-      <div class="user-actions">
-        <a href="index.html" class="btn-auth-pill">← Volver al Inicio</a>
-      </div>
-    </div>
-  </header>
+export default function Contacto() {
+  const [formData, setFormData] = useState({
+    nombre: '',
+    correo: '',
+    asunto: '',
+    mensaje: '',
+  })
 
-  <!-- Contenido principal -->
-  <main class="shop-section-container" style="max-width: 1100px; margin: 2rem auto; padding: 0 1rem;">
-    
-    <div class="shop-header-intro" style="text-align: center; margin-bottom: 2.5rem;">
-      <h2 style="font-size: 2rem; color: #0f172a; margin-bottom: 0.5rem;">Contáctanos</h2>
-      <p style="color: #64748b; font-size: 1rem;">¿Tienes dudas con algún instrumento o pedido? Escríbenos y te responderemos a la brevedad a tu correo electrónico.</p>
-    </div>
+  const [errores, setErrores] = useState({})
+  const [mensajeEnviado, setMensajeEnviado] = useState(false)
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem; align-items: start;">
-      
-      <!-- Información de Contacto -->
-      <section style="background-color: #ffffff; padding: 2rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-        <h3 style="font-size: 1.25rem; color: #0f172a; margin-bottom: 1.5rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.5rem;">Información de Atención</h3>
-        
-        <div style="display: flex; flex-direction: column; gap: 1.2rem;">
-          <div>
-            <strong style="color: #0f172a; display: block; font-size: 0.9rem;">📍 Dirección Showroom:</strong>
-            <span style="color: #475569; font-size: 0.95rem;">Viña del Mar, Región de Valparaíso</span>
-          </div>
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+    if (errores[name]) {
+      setErrores({ ...errores, [name]: '' })
+    }
+  }
 
-          <div>
-            <strong style="color: #0f172a; display: block; font-size: 0.9rem;">📞 Teléfono & WhatsApp:</strong>
-            <span style="color: #475569; font-size: 0.95rem;">+56 9 1234 5678</span>
-          </div>
+  const validarFormulario = () => {
+    const nuevosErrores = {}
+    if (!formData.nombre.trim()) nuevosErrores.nombre = 'El nombre es obligatorio'
+    if (!formData.correo.trim()) {
+      nuevosErrores.correo = 'El correo es obligatorio'
+    } else if (!/\S+@\S+\.\S+/.test(formData.correo)) {
+      nuevosErrores.correo = 'Ingresa un correo electrónico válido'
+    }
+    if (!formData.asunto.trim()) nuevosErrores.asunto = 'El asunto es obligatorio'
+    if (!formData.mensaje.trim()) nuevosErrores.mensaje = 'El mensaje no puede estar vacío'
 
-          <div>
-            <strong style="color: #0f172a; display: block; font-size: 0.9rem;">✉️ Correo Electrónico:</strong>
-            <span style="color: #475569; font-size: 0.95rem;">contacto@sonidovivo.cl</span>
-          </div>
+    setErrores(nuevosErrores)
+    return Object.keys(nuevosErrores).length === 0
+  }
 
-          <div>
-            <strong style="color: #0f172a; display: block; font-size: 0.9rem;">⏰ Horarios de Atención:</strong>
-            <span style="color: #475569; font-size: 0.95rem;">Lun a Vie: 10:00 a 19:30 hrs<br>Sábados: 10:30 a 14:30 hrs</span>
-          </div>
-        </div>
-      </section>
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (validarFormulario()) {
+      // Guardar mensaje enviado en localStorage para simulación/persistencia
+      const contactosPrevios = JSON.parse(localStorage.getItem('sonido_vivo_contactos') || '[]')
+      const nuevoContacto = {
+        id: Date.now(),
+        ...formData,
+        fecha: new Date().toLocaleDateString('es-CL'),
+      }
+      localStorage.setItem('sonido_vivo_contactos', JSON.stringify([...contactosPrevios, nuevoContacto]))
 
-      <!-- Formulario de Contacto -->
-      <section style="background-color: #ffffff; padding: 2rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-        <h3 style="font-size: 1.25rem; color: #0f172a; margin-bottom: 1.5rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.5rem;">Envíanos un Mensaje</h3>
-        
-        <form id="contact-form" style="display: flex; flex-direction: column; gap: 1rem;">
-          <div>
-            <label for="nombre" style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.3rem;">Nombre Completo *</label>
-            <input type="text" id="nombre" name="nombre" required placeholder="Ej: Juan Pérez" style="width: 100%; padding: 0.7rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem;">
-          </div>
+      setMensajeEnviado(true)
+      setFormData({ nombre: '', correo: '', asunto: '', mensaje: '' })
+    }
+  }
 
-          <div>
-            <label for="email" style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.3rem;">Correo Electrónico *</label>
-            <input type="email" id="email" name="email" required placeholder="ejemplo@correo.com" style="width: 100%; padding: 0.7rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem;">
-          </div>
-
-          <div>
-            <label for="asunto" style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.3rem;">Asunto *</label>
-            <select id="asunto" name="asunto" required style="width: 100%; padding: 0.7rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; background-color: #fff;">
-              <option value="" disabled selected>Selecciona un motivo</option>
-              <option value="consulta">Consulta sobre un Producto</option>
-              <option value="despacho">Estado de mi Pedido / Despacho</option>
-              <option value="garantia">Garantía o Soporte Técnico</option>
-              <option value="otro">Otro Motivo</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="mensaje" style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.3rem;">Mensaje *</label>
-            <textarea id="mensaje" name="mensaje" rows="4" required placeholder="Escribe tus dudas o comentarios aquí..." style="width: 100%; padding: 0.7rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; resize: vertical;"></textarea>
-          </div>
-
-          <button type="submit" style="background-color: #0f172a; color: #ffffff; padding: 0.8rem; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1rem; margin-top: 0.5rem; transition: background 0.2s;">
-            Enviar Mensaje
-          </button>
-        </form>
-      </section>
-
-    </div>
-  </main>
-
-  <!-- Modal de confirmación estilizado -->
-  <div id="modal-exito" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center;">
-    <div style="background: #ffffff; padding: 2.5rem; border-radius: 16px; max-width: 450px; width: 90%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);">
-      <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎉</div>
-      <h3 style="font-size: 1.5rem; color: #0f172a; margin-bottom: 0.8rem; font-weight: 800;">¡Mensaje Enviado!</h3>
-      <p style="color: #475569; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.8rem;">
-        Gracias por contactarnos. Tu mensaje ha sido enviado correctamente. Te responderemos al correo proporcionado a la brevedad.
+  return (
+    <main style={{ maxWidth: '1100px', margin: '2.5rem auto', padding: '0 1rem' }}>
+      <h2 style={{ fontSize: '2rem', color: '#0f172a', marginBottom: '0.5rem' }}>
+        Contacto & Soporte
+      </h2>
+      <p style={{ color: '#64748b', marginBottom: '2rem' }}>
+        ¿Tienes dudas con algún instrumento, tu pedido o quieres asesoría? Escríbenos y te responderemos a la brevedad.
       </p>
-      <button onclick="window.location.href='index.html'" style="background: #e91e63; color: #ffffff; font-weight: 700; border: none; padding: 0.8rem 1.8rem; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: background 0.2s;">
-        Volver al Inicio
-      </button>
-    </div>
-  </div>
 
-  <script src="js/login.js"></script>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '2rem',
+          alignItems: 'start',
+        }}
+      >
+        {/* Formulario de Contacto */}
+        <section style={tarjeta}>
+          <h3 style={{ fontSize: '1.25rem', color: '#0f172a', marginBottom: '1.5rem' }}>
+            Envíanos un Mensaje
+          </h3>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      // Manejo de la búsqueda desde el header
-      const searchBtn = document.getElementById('search-button');
-      const searchInput = document.getElementById('search-input');
+          <form onSubmit={handleSubmit}>
+            <div>
+              <label style={{ fontWeight: '600', color: '#334155', fontSize: '0.9rem' }}>
+                Nombre Completo *
+              </label>
+              <input
+                type="text"
+                name="nombre"
+                value={formData.nombre}
+                onChange={handleChange}
+                placeholder="Ej. Juan Pérez"
+                style={inputStyle}
+              />
+              {errores.nombre && (
+                <span style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '-0.8rem', display: 'block', marginBottom: '0.8rem' }}>
+                  {errores.nombre}
+                </span>
+              )}
+            </div>
 
-      if (searchBtn && searchInput) {
-        searchBtn.addEventListener('click', () => {
-          const query = searchInput.value.trim();
-          if (query) window.location.href = `productos.html?buscar=${encodeURIComponent(query)}`;
-        });
-        searchInput.addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') {
-            const query = e.target.value.trim();
-            if (query) window.location.href = `productos.html?buscar=${encodeURIComponent(query)}`;
-          }
-        });
-      }
+            <div>
+              <label style={{ fontWeight: '600', color: '#334155', fontSize: '0.9rem' }}>
+                Correo Electrónico *
+              </label>
+              <input
+                type="email"
+                name="correo"
+                value={formData.correo}
+                onChange={handleChange}
+                placeholder="nombre@ejemplo.com"
+                style={inputStyle}
+              />
+              {errores.correo && (
+                <span style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '-0.8rem', display: 'block', marginBottom: '0.8rem' }}>
+                  {errores.correo}
+                </span>
+              )}
+            </div>
 
-      // Despliegue del modal en lugar de alert()
-      const form = document.getElementById('contact-form');
-      const modal = document.getElementById('modal-exito');
+            <div>
+              <label style={{ fontWeight: '600', color: '#334155', fontSize: '0.9rem' }}>
+                Asunto *
+              </label>
+              <input
+                type="text"
+                name="asunto"
+                value={formData.asunto}
+                onChange={handleChange}
+                placeholder="Consulta sobre producto, envíos, etc."
+                style={inputStyle}
+              />
+              {errores.asunto && (
+                <span style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '-0.8rem', display: 'block', marginBottom: '0.8rem' }}>
+                  {errores.asunto}
+                </span>
+              )}
+            </div>
 
-      if (form && modal) {
-        form.addEventListener('submit', (e) => {
-          e.preventDefault();
-          modal.style.display = 'flex';
-        });
-      }
-    });
-  </script>
+            <div>
+              <label style={{ fontWeight: '600', color: '#334155', fontSize: '0.9rem' }}>
+                Mensaje *
+              </label>
+              <textarea
+                name="mensaje"
+                rows="4"
+                value={formData.mensaje}
+                onChange={handleChange}
+                placeholder="Escribe tu consulta detalladamente..."
+                style={{ ...inputStyle, resize: 'vertical' }}
+              ></textarea>
+              {errores.mensaje && (
+                <span style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '-0.8rem', display: 'block', marginBottom: '0.8rem' }}>
+                  {errores.mensaje}
+                </span>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              style={{
+                width: '100%',
+                padding: '0.8rem',
+                backgroundColor: '#0f172a',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                fontSize: '1rem',
+              }}
+            >
+              Enviar Mensaje
+            </button>
+          </form>
+        </section>
+
+        {/* Información de Contacto Adicional */}
+        <section style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={tarjeta}>
+            <h3 style={{ fontSize: '1.2rem', color: '#0f172a', marginBottom: '1rem' }}>
+              📍 Información de la Tienda
+            </h3>
+            <p style={{ color: '#475569', margin: '0.5rem 0' }}>
+              <strong>Dirección:</strong> Av. Providencia 1234, Local 45, Santiago, Chile
+            </p>
+            <p style={{ color: '#475569', margin: '0.5rem 0' }}>
+              <strong>Horario de Atención:</strong> Lunes a Viernes de 10:00 a 19:00 hrs. Sábados de 10:00 a 14:00 hrs.
+            </p>
+            <p style={{ color: '#475569', margin: '0.5rem 0' }}>
+              <strong>Teléfono:</strong> +56 2 2345 6789
+            </p>
+            <p style={{ color: '#475569', margin: '0.5rem 0' }}>
+              <strong>Email:</strong> contacto@sonidovivo.cl
+            </p>
+          </div>
+
+          <div style={{ ...tarjeta, backgroundColor: '#f8fafc' }}>
+            <h4 style={{ color: '#0f172a', marginBottom: '0.5rem' }}>⚡ Respuesta Rápida</h4>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>
+              Nuestro equipo revisa los mensajes diariamente. Si tienes consultas sobre compras recientes, no olvides incluir tu código de orden.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      {/* Modal de Confirmación tras enviar mensaje */}
+      {mensajeEnviado && (
+        <Modal titulo="¡Mensaje Enviado!" onClose={() => setMensajeEnviado(false)}>
+          <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+            <div style={{ fontSize: '3rem', color: '#10b981', marginBottom: '0.5rem' }}>✓</div>
+            <h3>Gracias por contactarnos</h3>
+            <p style={{ color: '#64748b', marginTop: '0.5rem' }}>
+              Hemos recibido tu mensaje correctamente. Te responderemos a la brevedad.
+            </p>
+            <button
+              onClick={() => setMensajeEnviado(false)}
+              style={{
+                width: '100%',
+                padding: '0.8rem',
+                backgroundColor: '#0f172a',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                marginTop: '1.5rem',
+              }}
+            >
+              Cerrar
+            </button>
+          </div>
+        </Modal>
+      )}
+    </main>
+  )
+}
