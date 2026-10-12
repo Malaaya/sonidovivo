@@ -44,6 +44,7 @@ function BotonAuth() {
 
 export default function Header({ variante = 'completo' }) {
   const [busqueda, setBusqueda] = useState('')
+  const [menuAbierto, setMenuAbierto] = useState(false)
   const { totalItems } = useCarrito()
   const navigate = useNavigate()
   const location = useLocation()
@@ -119,7 +120,10 @@ export default function Header({ variante = 'completo' }) {
         </div>
       </div>
 
-      <nav className="sub-nav-bar" aria-label="Navegación principal">
+      <nav
+        className="sub-nav-bar navbar navbar-expand-lg navbar-dark"
+        aria-label="Navegación principal"
+      >
         <div className="sub-nav-container">
           <details className="hamburger-menu" key={location.key}>
             <summary className="hamburger-btn">
@@ -137,23 +141,35 @@ export default function Header({ variante = 'completo' }) {
             </ul>
           </details>
 
-          <ul className="main-nav-links">
-            <li>
-              <Link to="/">Inicio</Link>
-            </li>
-            <li>
-              <Link to="/productos">Ver Catálogo</Link>
-            </li>
-            <li>
-              <Link to="/nosotros">Sobre Nosotros</Link>
-            </li>
-            <li>
-              <Link to="/contacto">Contacto</Link>
-            </li>
-            <li>
-              <EnlaceAdmin>Portal Admin</EnlaceAdmin>
-            </li>
-          </ul>
+          <button
+            type="button"
+            className="navbar-toggler ms-auto"
+            aria-expanded={menuAbierto}
+            aria-label="Mostrar u ocultar el menú"
+            onClick={() => setMenuAbierto(!menuAbierto)}
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+
+          <div className={`collapse navbar-collapse ${menuAbierto ? 'show' : ''}`}>
+            <ul className="main-nav-links" onClick={() => setMenuAbierto(false)}>
+              <li>
+                <Link to="/">Inicio</Link>
+              </li>
+              <li>
+                <Link to="/productos">Ver Catálogo</Link>
+              </li>
+              <li>
+                <Link to="/nosotros">Sobre Nosotros</Link>
+              </li>
+              <li>
+                <Link to="/contacto">Contacto</Link>
+              </li>
+              <li>
+                <EnlaceAdmin>Portal Admin</EnlaceAdmin>
+              </li>
+            </ul>
+          </div>
         </div>
       </nav>
     </header>
