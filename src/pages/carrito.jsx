@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useCarrito } from '../context/CarritoContext'
 import { useAuth } from '../context/AuthContext'
+import { useCarrito } from '../context/CarritoContext'
+import { registrarCompra } from '../utils/historial'
 import { clp } from '../utils/formato'
 import Modal from '../components/Modal'
 
@@ -15,62 +16,30 @@ const tarjeta = {
 const botonCantidad = { padding: '0.2rem 0.6rem', cursor: 'pointer' }
 
 export default function Carrito() {
+  const { sesion } = useAuth()
   const { carrito, total, cambiarCantidad, eliminarDelCarrito, vaciarCarrito } = useCarrito()
-
-  const { usuario } = useAuth()
   const navigate = useNavigate()
-  const [mostrarModalPago, setMostrarModalPago] = useState(false)
-  const [ordenDetalle, setOrdenDetalle] = useState(null)
-  const [errorPago, setErrorPago] = useState('')
+  const [ordenExitosa, setOrdenExitosa] = useState(null)
 
   const confirmarVaciar = () => {
     if (confirm('¿Estás seguro de que deseas vaciar el carrito?')) vaciarCarrito()
   }
 
   const procesarPago = () => {
-    setErrorPago('')
-    if (!usuario) {
-      alert('Debes iniciar sesión para realizar el pago.')
+    if (!sesion) {
+      alert('Debes iniciar sesión para realizar una compra.')
       navigate('/login')
       return
     }
+
     if (carrito.length === 0) {
-      setErrorPago('Tu carrito está vacío. Agrega productos antes de pagar.')
+      alert('Tu carrito está vacío.')
       return
     }
-    const nuevaOrden = {
-      id: `ORD-${Date.now()}`,
-      fecha: new Date().toLocaleDateString('es-CL', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-      items: [...carrito],
-      total: total,
-      cliente: {
-        nombre: usuario.nombre,
-        run: usuario.run,
-        correo: usuario.correo,
-      },
-    }
-    const claveHistorial = `historial_${usuario.run}`
-    const historialPrevio = JSON.parse(localStorage.getItem(claveHistorial) || '[]')
-    localStorage.setItem(claveHistorial, JSON.stringify([nuevaOrden, ...historialPrevio]))
 
-    const ventasGlobales = JSON.parse(localStorage.getItem('sonido_vivo_ventas') || '[]')
-    localStorage.setItem('sonido_vivo_ventas', JSON.stringify([nuevaOrden, ...ventasGlobales]))
-
-    setOrdenDetalle(nuevaOrden)
-    setMostrarModalPago(true)
+    const orden = registrarCompra(sesion.run, carrito)
     vaciarCarrito()
-
-  }
-    const handleCerrarModal = () => {
-    setMostrarModalPago(false)
-    navigate('/perfil')
-  
+    setOrdenExitosa(orden)
   }
 
   return (
@@ -79,11 +48,6 @@ export default function Carrito() {
         Tu Carrito de Compras
       </h2>
 
-      {errorPago && (
-        <div style={{ padding: '0.8rem', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '6px', marginBottom: '1rem' }}>
-          {errorPago}
-        </div>
-      )}
       <div
         style={{
           display: 'grid',
@@ -277,38 +241,16 @@ export default function Carrito() {
         </section>
       </div>
 
-      {mostrarModalPago && ordenDetalle && (
-        <Modal titulo="¡Pago Aprobado con Éxito!" onClose={handleCerrarModal}>
-          <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-            <div style={{ fontSize: '3rem', color: '#10b981', marginBottom: '0.5rem' }}>✓</div>
-            <h3>Orden {ordenDetalle.id}</h3>
-            <p>Gracias por tu compra, <strong>{ordenDetalle.cliente.nombre}</strong>.</p>
-            <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
-              Comprobante enviado a <strong>{ordenDetalle.cliente.correo}</strong>.
-            </p>
-
-            <div style={{ ...tarjeta, textAlign: 'left', margin: '1rem 0', backgroundColor: '#f8fafc' }}>
-              <p><strong>Fecha:</strong> {ordenDetalle.fecha}</p>
-              <p><strong>Total Pagado:</strong> {clp(ordenDetalle.total)}</p>
-              <p><strong>Ítems comprados:</strong> {ordenDetalle.items.length}</p>
-            </div>
-
-            <button
-              onClick={handleCerrarModal}
-              style={{
-                width: '100%',
-                padding: '0.8rem',
-                backgroundColor: '#0f172a',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '6px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-              }}
-            >
-              Ver en Mi Historial de Compras
-            </button>
-          </div>
+      {ordenExitosa && (
+        <Modal
+          emoji="🎉"
+          titulo="¡Pago Aprobado!"
+          botones={[
+            { texto: 'Ver en Mi Historial de Compras', onClick: () => navigate('/perfil') },
+          ]}
+        >
+          Transacción Webpay Plus exitosa. Tu orden <strong>#{ordenExitosa.id}</strong> por un total de{' '}
+          <strong>{clp(ordenExitosa.total)}</strong> fue procesada correctamente.
         </Modal>
       )}
     </main>

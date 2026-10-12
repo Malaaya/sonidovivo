@@ -23,3 +23,4 @@ export function guardar(clave, valor) {
 export function eliminar(clave) {
   localStorage.removeItem(clave)
 }
+

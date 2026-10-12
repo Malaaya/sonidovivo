@@ -1,72 +1,74 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useProductos } from '../context/ProductosContext';
-import ProductoCard from '../components/ProductoCard';
-import EnlaceAdmin from '../components/EnlaceAdmin';
+import { Link } from 'react-router-dom'
+import { useProductos } from '../context/ProductosContext'
+import ProductoCard from '../components/ProductoCard'
 
-export default function IndexPage() {
-  const { productos } = useProductos();
+const MARCAS = ['YAMAHA', 'FENDER', 'MARSHALL', 'ROLAND', 'BOSS', 'SHURE']
 
-  // Filtrar productos destacados o etiquetados en oferta
-  const ofertasDestacadas = productos.filter(p => p.esOferta || p.destacado).slice(0, 8);
+export default function Index() {
+  const { productos } = useProductos()
+  const destacados = productos.slice(0, 4)
 
   return (
-    <div className="home-page">
-      {/* Banner Principal / Hero */}
-      <section className="hero-banner">
-        <div className="container hero-content">
-          <div className="hero-text">
-            <h2>Siente el Ritmo, Vive la Música</h2>
-            <p>Descubre nuestra selección de guitarras, baterías, teclados y audio profesional con los mejores precios de Chile.</p>
-            <div className="hero-actions">
-              <Link to="/productos" className="btn btn-primary">Ver Catálogo</Link>
-              <EnlaceAdmin className="btn-hero-admin" />
-            </div>
-          </div>
-          <div className="hero-image">
-            <img src="/src/assets/hero.png" alt="Instrumentos Sonido Vivo" />
+    <main>
+      <section
+        className="hero-static-banner"
+        style={{
+          minHeight: '200px',
+          padding: '1.2rem 3rem',
+          display: 'flex',
+          alignItems: 'center',
+          background:
+            "linear-gradient(90deg, rgba(11,15,25,0.92) 0%, rgba(11,15,25,0.65) 55%, rgba(233,30,99,0.3) 100%), url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1400&auto=format&fit=crop&q=80') center/cover no-repeat",
+        }}
+      >
+        <div className="hero-static-content">
+          <h1
+            className="hero-static-title"
+            style={{ color: '#ffffff', fontSize: '2.8rem', marginBottom: '1rem' }}
+          >
+            ¡Equípate con el Mejor Tono!
+          </h1>
+          <p
+            className="hero-static-desc"
+            style={{ color: '#e2e8f0', fontSize: '1.2rem', marginBottom: '1.5rem' }}
+          >
+            Guitarras, bajos, amplificadores y accesorios seleccionados con garantía directa.
+          </p>
+          <div className="hero-static-actions">
+            <Link to="/productos" className="btn-slide-cta">
+              Explorar Catálogo
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Sección de Productos en Oferta */}
-      <section className="container section-destacados">
-        <div className="section-header">
-          <h2>¡OFERTAS DESTACADAS!</h2>
-          <p>Aprovecha los mejores descuentos en instrumentos de alta calidad</p>
+      <section className="shop-section-container">
+        <div className="shop-header-intro">
+          <h2>Productos Destacados</h2>
+          <p>Nuestra selección de instrumentos más pedidos con disponibilidad inmediata</p>
         </div>
+        <div className="shop-layout">
+          <div className="products-shelf-grid">
+            {destacados.map((producto) => (
+              <ProductoCard key={producto.codigo} producto={producto} oferta />
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <div className="productos-grid">
-          {ofertasDestacadas.map(producto => (
-            <ProductoCard key={producto.id} producto={producto} />
+      <section className="brands-section">
+        <div className="brands-header">
+          <h3>Nuestras Marcas Oficiales</h3>
+          <p>Marcas líderes con garantía directa de fábrica</p>
+        </div>
+        <div className="brands-showcase">
+          {MARCAS.map((marca) => (
+            <span key={marca} className="brand-name-tag">
+              {marca}
+            </span>
           ))}
         </div>
-
-        <div className="text-center margin-top-lg">
-          <Link to="/productos" className="btn btn-secondary">Ver todos los productos ({productos.length})</Link>
-        </div>
       </section>
-
-      {/* Categorías Rápidas */}
-      <section className="categories-section">
-        <div className="container">
-          <h2>Explora por Categoría</h2>
-          <div className="categories-grid">
-            <Link to="/productos?categoria=guitarras" className="category-card">
-              <h3>Guitarras y Bajos</h3>
-            </Link>
-            <Link to="/productos?categoria=baterias" className="category-card">
-              <h3>Baterías y Percusión</h3>
-            </Link>
-            <Link to="/productos?categoria=teclados" className="category-card">
-              <h3>Teclados y Pianos</h3>
-            </Link>
-            <Link to="/productos?categoria=audio" className="category-card">
-              <h3>Audio y Micrófonos</h3>
-            </Link>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+    </main>
+  )
 }
