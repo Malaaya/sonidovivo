@@ -72,6 +72,7 @@ export function CarritoProvider({ children }) {
       value={{
         carrito,
         totalItems,
+        cantidadTotal: totalItems,
         total,
         productoAgregado,
         agregarAlCarrito,

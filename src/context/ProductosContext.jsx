@@ -26,7 +26,6 @@ export function ProductosProvider({ children }) {
   )
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useProductos() {
   const ctx = useContext(ProductosContext)
   if (!ctx) throw new Error('useProductos debe usarse dentro de <ProductosProvider>')

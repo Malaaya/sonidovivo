@@ -6,103 +6,48 @@ export default function ProductoCard({ producto, oferta = false }) {
   const precioOriginal = Math.round(producto.precio * 1.15)
 
   return (
-    <article className="shelf-product-card">
-      {oferta && <span className="badge-offer">¡OFERTA!</span>}
+    <article className="card h-100 shadow-sm position-relative">
+      {oferta && (
+        <span className="badge bg-danger position-absolute top-0 start-0 m-2">¡OFERTA!</span>
+      )}
 
       <img
         src={producto.imagen}
         alt={producto.nombre}
-        className="shelf-product-img"
+        className="card-img-top object-fit-cover"
+        style={{ height: '200px' }}
         loading="lazy"
       />
 
-      <div
-        className="shelf-product-body"
-        style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-      >
-        <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
+      <div className="card-body d-flex flex-column">
+        <small className="text-muted fw-semibold">
           {producto.codigo} | {producto.categoria || 'Audio & Cuerdas'}
-        </span>
+        </small>
 
-        <h3
-          className="shelf-product-title"
-          style={{ fontWeight: 700, color: '#000000', margin: '0.3rem 0' }}
-        >
-          {producto.nombre}
-        </h3>
+        <h3 className="card-title h6 fw-bold my-1">{producto.nombre}</h3>
 
-        <span
-          style={{
-            fontSize: '0.85rem',
-            color: '#e91e63',
-            fontWeight: 600,
-            marginBottom: '0.4rem',
-          }}
-        >
+        <small className="fw-semibold mb-2" style={{ color: '#e91e63' }}>
           {producto.marca} {producto.modelo || ''}
-        </span>
+        </small>
 
-        <p
-          style={{
-            fontSize: '0.85rem',
-            color: '#475569',
-            lineHeight: 1.4,
-            marginBottom: '0.8rem',
-            flexGrow: 1,
-          }}
-        >
-          {producto.descripcion}
-        </p>
+        <p className="card-text small text-secondary flex-grow-1">{producto.descripcion}</p>
 
-        <div style={{ marginBottom: '0.8rem' }}>
+        <div className="mb-3">
           {oferta && (
-            <p
-              className="shelf-product-old-price"
-              style={{
-                margin: 0,
-                textDecoration: 'line-through',
-                color: '#94a3b8',
-                fontSize: '0.85rem',
-              }}
-            >
+            <p className="mb-0 text-decoration-line-through text-muted small">
               {clp(precioOriginal)}
             </p>
           )}
-          <p
-            className="shelf-product-price"
-            style={{ color: '#0b0f19', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}
-          >
-            {clp(producto.precio)}
-          </p>
+          <p className="mb-0 fs-5 fw-bold">{clp(producto.precio)}</p>
         </div>
 
-        <div
-          style={{
-            marginTop: 'auto',
-            paddingTop: '0.6rem',
-            borderTop: '1px solid #f1f5f9',
-          }}
+        <button
+          type="button"
+          className="btn btn-warning w-100 fw-bold mt-auto"
+          onClick={() => agregarAlCarrito(producto.codigo)}
         >
-          <button
-            type="button"
-            className="btn-slide-cta"
-            style={{
-              width: '100%',
-              padding: '0.6rem',
-              fontSize: '0.9rem',
-              border: 'none',
-              cursor: 'pointer',
-              textAlign: 'center',
-              background: '#ffc107',
-              color: '#000',
-              fontWeight: 'bold',
-              borderRadius: '6px',
-            }}
-            onClick={() => agregarAlCarrito(producto.codigo)}
-          >
-            Agregar al Carrito
-          </button>
-        </div>
+          Agregar al Carrito
+        </button>
       </div>
     </article>
   )

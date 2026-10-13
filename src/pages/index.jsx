@@ -42,17 +42,19 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="shop-section-container">
-        <div className="shop-header-intro">
-          <h2>Productos Destacados</h2>
-          <p>Nuestra selección de instrumentos más pedidos con disponibilidad inmediata</p>
+      <section className="container my-5">
+        <div className="text-center mb-4">
+          <h2 className="fw-bold">Productos Destacados</h2>
+          <p className="text-secondary">
+            Nuestra selección de instrumentos más pedidos con disponibilidad inmediata
+          </p>
         </div>
-        <div className="shop-layout">
-          <div className="products-shelf-grid">
-            {destacados.map((producto) => (
-              <ProductoCard key={producto.codigo} producto={producto} oferta />
-            ))}
-          </div>
+        <div className="row g-4">
+          {destacados.map((producto) => (
+            <div key={producto.codigo} className="col-12 col-sm-6 col-lg-3">
+              <ProductoCard producto={producto} oferta />
+            </div>
+          ))}
         </div>
       </section>
 

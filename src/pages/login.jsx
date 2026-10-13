@@ -39,20 +39,15 @@ export default function Login() {
   const esAdmin = sesionIniciada?.rol === 'admin'
 
   return (
-    <main style={{ maxWidth: '480px', margin: '3.5rem auto', padding: '0 1.5rem' }}>
-      <div
-        style={{
-          background: '#ffffff',
-          padding: '2.5rem',
-          borderRadius: '10px',
-          border: '1px solid var(--border-color)',
-          boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
-        }}
-      >
-        <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', color: '#0f172a' }}>
+    <main className="container my-5">
+      <div className="row justify-content-center">
+      <div className="col-12 col-sm-10 col-md-7 col-lg-5">
+      <div className="card shadow-sm">
+      <div className="card-body p-4 p-md-5">
+        <h2 className="h3 fw-bold mb-1">
           Iniciar Sesión
         </h2>
-        <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '2rem' }}>
+        <p className="text-secondary small mb-4">
           Accede con tu cuenta para gestionar tus pedidos y compras.
         </p>
 
@@ -81,34 +76,21 @@ export default function Login() {
 
           <button
             type="submit"
-            className="btn-slide-cta"
-            style={{
-              width: '100%',
-              padding: '0.9rem',
-              border: 'none',
-              fontSize: '1rem',
-              cursor: 'pointer',
-              textAlign: 'center',
-              marginBottom: '1.2rem',
-            }}
+            className="btn btn-warning w-100 fw-bold py-2 mb-3"
           >
             Entrar a Mi Cuenta
           </button>
 
-          <p style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748b' }}>
+          <p className="text-center small text-secondary mb-0">
             ¿No tienes una cuenta aún?{' '}
-            <Link
-              to="/registro"
-              style={{
-                color: 'var(--accent-pink)',
-                fontWeight: 600,
-                textDecoration: 'none',
-              }}
-            >
+            <Link to="/registro" className="fw-semibold text-decoration-none">
               Regístrate aquí
             </Link>
           </p>
         </form>
+      </div>
+      </div>
+      </div>
       </div>
 
       {sesionIniciada && (
