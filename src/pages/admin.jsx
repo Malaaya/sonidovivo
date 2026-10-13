@@ -13,22 +13,28 @@ export default function Admin() {
     <>
       <HeaderAdmin />
       <main className="admin-container">
-        <h2 style={{ fontSize: '1.8rem', color: '#0f172a', marginBottom: '1rem' }}>
+        <h2 className="h2 fw-bold mb-3">
           Panel de Control y Operaciones
         </h2>
 
-        <div className="stats-bar">
-          <div className="stat-pill">
-            <span>Productos en Catálogo</span>
-            <strong>{productos.length}</strong>
+        <div className="row g-3 mb-4">
+          <div className="col-12 col-md-4">
+            <div className="stat-pill h-100">
+              <span>Productos en Catálogo</span>
+              <strong>{productos.length}</strong>
+            </div>
           </div>
-          <div className="stat-pill">
-            <span>Clientes Registrados</span>
-            <strong>{usuarios.length}</strong>
+          <div className="col-12 col-md-4">
+            <div className="stat-pill h-100">
+              <span>Clientes Registrados</span>
+              <strong>{usuarios.length}</strong>
+            </div>
           </div>
-          <div className="stat-pill">
-            <span>Total Ventas Realizadas</span>
-            <strong>{ventas}</strong>
+          <div className="col-12 col-md-4">
+            <div className="stat-pill h-100">
+              <span>Total Ventas Realizadas</span>
+              <strong>{ventas}</strong>
+            </div>
           </div>
         </div>
 

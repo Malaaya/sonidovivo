@@ -55,13 +55,16 @@ export default function AdminProductos() {
   }
 
   return (
-    <div className="admin-grid">
-      <section className="admin-card">
-        <h3>Agregar Producto</h3>
+    <div className="row g-4 mb-4">
+      <section className="col-12 col-lg-4">
+       <div className="card shadow-sm">
+        <div className="card-body">
+        <h3 className="h5 fw-bold mb-3">Agregar Producto</h3>
         <form onSubmit={guardarProducto}>
-          <div className="form-group">
-            <label>Código (SKU)</label>
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Código (SKU)</label>
             <input
+              className="form-control"
               type="text"
               required
               placeholder="Ej: GUIT-001"
@@ -69,9 +72,10 @@ export default function AdminProductos() {
               onChange={cambiar('codigo')}
             />
           </div>
-          <div className="form-group">
-            <label>Nombre del Producto</label>
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Nombre del Producto</label>
             <input
+              className="form-control"
               type="text"
               required
               placeholder="Ej: Guitarra Eléctrica"
@@ -79,9 +83,10 @@ export default function AdminProductos() {
               onChange={cambiar('nombre')}
             />
           </div>
-          <div className="form-group">
-            <label>Marca</label>
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Marca</label>
             <input
+              className="form-control"
               type="text"
               required
               placeholder="Ej: Fender"
@@ -89,9 +94,9 @@ export default function AdminProductos() {
               onChange={cambiar('marca')}
             />
           </div>
-          <div className="form-group">
-            <label>Categoría</label>
-            <select required value={form.catSlug} onChange={cambiar('catSlug')}>
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Categoría</label>
+            <select className="form-select" required value={form.catSlug} onChange={cambiar('catSlug')}>
               <option value="" disabled>
                 Selecciona una categoría
               </option>
@@ -102,9 +107,10 @@ export default function AdminProductos() {
               ))}
             </select>
           </div>
-          <div className="form-group">
-            <label>Precio ($ CLP)</label>
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Precio ($ CLP)</label>
             <input
+              className="form-control"
               type="number"
               min="0"
               required
@@ -113,9 +119,10 @@ export default function AdminProductos() {
               onChange={cambiar('precio')}
             />
           </div>
-          <div className="form-group">
-            <label>Stock Disponible</label>
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Stock Disponible</label>
             <input
+              className="form-control"
               type="number"
               min="1"
               required
@@ -124,9 +131,10 @@ export default function AdminProductos() {
               onChange={cambiar('stock')}
             />
           </div>
-          <div className="form-group">
-            <label>URL de Imagen</label>
+          <div className="mb-3">
+            <label className="form-label fw-semibold">URL de Imagen</label>
             <input
+              className="form-control"
               type="url"
               required
               placeholder="https://ejemplo.com/foto.jpg"
@@ -134,16 +142,20 @@ export default function AdminProductos() {
               onChange={cambiar('imagen')}
             />
           </div>
-          <button type="submit" className="btn-save">
+          <button type="submit" className="btn btn-dark w-100 fw-bold">
             Guardar en Inventario
           </button>
         </form>
+        </div>
+       </div>
       </section>
 
-      <section className="admin-card">
-        <h3>Productos Registrados</h3>
-        <div style={{ overflowX: 'auto', maxHeight: '480px' }}>
-          <table className="admin-table">
+      <section className="col-12 col-lg-8">
+       <div className="card shadow-sm">
+        <div className="card-body">
+        <h3 className="h5 fw-bold mb-3">Productos Registrados</h3>
+        <div className="table-responsive" style={{ maxHeight: '480px' }}>
+          <table className="table table-striped table-hover align-middle mb-0">
             <thead>
               <tr>
                 <th>SKU</th>
@@ -157,7 +169,7 @@ export default function AdminProductos() {
             <tbody>
               {productos.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', color: '#64748b' }}>
+                  <td colSpan={6} className="text-center text-secondary">
                     No hay productos en inventario.
                   </td>
                 </tr>
@@ -178,7 +190,8 @@ export default function AdminProductos() {
                     <td>{prod.stock} u.</td>
                     <td>
                       <button
-                        className="btn-delete-item"
+                        type="button"
+                        className="btn btn-sm btn-outline-danger"
                         onClick={() => borrarProducto(prod.codigo)}
                       >
                         🗑️ Eliminar
@@ -190,6 +203,8 @@ export default function AdminProductos() {
             </tbody>
           </table>
         </div>
+        </div>
+       </div>
       </section>
     </div>
   )
