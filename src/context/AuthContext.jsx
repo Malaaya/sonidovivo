@@ -9,32 +9,40 @@ export function AuthProvider({ children }) {
 
   const registrar = (usuario) => {
     if (usuarios.some((u) => u.run === usuario.run)) return false
-    const nuevaLista = [...usuarios, usuario]
+    
+  
+    const nuevoUsuario = {
+      ...usuario,
+      password: btoa(usuario.password),
+    }
+
+    const nuevaLista = [...usuarios, nuevoUsuario]
     guardar(CLAVES.usuarios, nuevaLista)
     setUsuarios(nuevaLista)
     return true
   }
 
-  const login = (runIngresado, password) => {
-    const run = runIngresado.trim().toUpperCase()
-    const usuario = usuarios.find(
-      (u) => u.run.toUpperCase() === run && u.password === password,
+  const login = (run, password) => {
+
+    const listaUsuarios = leer(CLAVES.usuarios, usuarios)
+    
+    const usuarioEncontrado = listaUsuarios.find(
+      (u) => u.run === run && u.password === btoa(password)
     )
-    if (!usuario) return null
 
-    const esAdmin =
-      usuario.email === 'admin@sonidovivo.cl' || usuario.run === '11111111-1'
-
-    const nuevaSesion = {
-      run: usuario.run,
-      nombre: usuario.nombre,
-      email: usuario.email,
-      telefono: usuario.telefono,
-      rol: esAdmin ? 'admin' : 'cliente',
+    if (usuarioEncontrado) {
+      const sesionUsuario = {
+        run: usuarioEncontrado.run,
+        nombre: usuarioEncontrado.nombre,
+        email: usuarioEncontrado.email,
+        telefono: usuarioEncontrado.telefono || '', 
+        rol: usuarioEncontrado.rol,
+      }
+      setSesion(sesionUsuario)
+      guardar(CLAVES.sesion, sesionUsuario) 
+      return true
     }
-    guardar(CLAVES.sesion, nuevaSesion)
-    setSesion(nuevaSesion)
-    return nuevaSesion
+    return false
   }
 
   const logout = () => {
@@ -44,12 +52,17 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-  value={{
-    usuarios, sesion, usuario: sesion,
-    esAdmin: sesion?.rol === 'admin',
-    registrar, login, logout, cerrarSesion: logout,
-  }}
->
+      value={{
+        usuarios,
+        sesion,
+        usuario: sesion,
+        esAdmin: sesion?.rol === 'admin',
+        registrar,
+        login,
+        logout,
+        cerrarSesion: logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )

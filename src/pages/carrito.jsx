@@ -25,7 +25,7 @@ export default function Carrito() {
     if (confirm('¿Estás seguro de que deseas vaciar el carrito?')) vaciarCarrito()
   }
 
-  const procesarPago = () => {
+const procesarPago = () => {
     if (!sesion) {
       alert('Debes iniciar sesión para realizar una compra.')
       navigate('/login')
