@@ -42,14 +42,27 @@ export function AuthProvider({ children }) {
     setSesion(null)
   }
 
+  const eliminarUsuario = (run) => {
+    const nuevaLista = usuarios.filter((u) => u.run !== run)
+    guardar(CLAVES.usuarios, nuevaLista)
+    eliminar(CLAVES.historial(run))
+    setUsuarios(nuevaLista)
+  }
+
   return (
     <AuthContext.Provider
-  value={{
-    usuarios, sesion, usuario: sesion,
-    esAdmin: sesion?.rol === 'admin',
-    registrar, login, logout, cerrarSesion: logout,
-  }}
->
+      value={{
+        usuarios,
+        sesion,
+        usuario: sesion,
+        esAdmin: sesion?.rol === 'admin',
+        registrar,
+        login,
+        logout,
+        cerrarSesion: logout,
+        eliminarUsuario,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )
