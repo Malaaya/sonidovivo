@@ -3,51 +3,51 @@ import { CLAVES, leer, guardar, eliminar } from '../utils/storage'
 
 const AuthContext = createContext(null)
 
+const codificar = (texto) => btoa(String.fromCharCode(...new TextEncoder().encode(texto)))
+
 export function AuthProvider({ children }) {
   const [usuarios, setUsuarios] = useState(() => leer(CLAVES.usuarios, []))
   const [sesion, setSesion] = useState(() => leer(CLAVES.sesion, null))
 
   const registrar = (usuario) => {
     if (usuarios.some((u) => u.run === usuario.run)) return false
-    
-  
-    const nuevoUsuario = {
-      ...usuario,
-      password: btoa(usuario.password),
-    }
-
-    const nuevaLista = [...usuarios, nuevoUsuario]
+    const nuevaLista = [...usuarios, { ...usuario, password: codificar(usuario.password) }]
     guardar(CLAVES.usuarios, nuevaLista)
     setUsuarios(nuevaLista)
     return true
   }
 
-  const login = (run, password) => {
-
-    const listaUsuarios = leer(CLAVES.usuarios, usuarios)
-    
-    const usuarioEncontrado = listaUsuarios.find(
-      (u) => u.run === run && u.password === btoa(password)
+  const login = (runIngresado, password) => {
+    const run = runIngresado.trim().toUpperCase()
+    const usuario = usuarios.find(
+      (u) => u.run.toUpperCase() === run && u.password === codificar(password),
     )
+    if (!usuario) return null
 
-    if (usuarioEncontrado) {
-      const sesionUsuario = {
-        run: usuarioEncontrado.run,
-        nombre: usuarioEncontrado.nombre,
-        email: usuarioEncontrado.email,
-        telefono: usuarioEncontrado.telefono || '', 
-        rol: usuarioEncontrado.rol,
-      }
-      setSesion(sesionUsuario)
-      guardar(CLAVES.sesion, sesionUsuario) 
-      return true
+    const esAdmin = usuario.email === 'admin@sonidovivo.cl' || usuario.run === '11111111-1'
+
+    const nuevaSesion = {
+      run: usuario.run,
+      nombre: usuario.nombre,
+      email: usuario.email,
+      telefono: usuario.telefono || '',
+      rol: esAdmin ? 'admin' : 'cliente',
     }
-    return false
+    guardar(CLAVES.sesion, nuevaSesion)
+    setSesion(nuevaSesion)
+    return nuevaSesion
   }
 
   const logout = () => {
     eliminar(CLAVES.sesion)
     setSesion(null)
+  }
+
+  const eliminarUsuario = (run) => {
+    const nuevaLista = usuarios.filter((u) => u.run !== run)
+    guardar(CLAVES.usuarios, nuevaLista)
+    eliminar(CLAVES.historial(run))
+    setUsuarios(nuevaLista)
   }
 
   return (
@@ -61,6 +61,7 @@ export function AuthProvider({ children }) {
         login,
         logout,
         cerrarSesion: logout,
+        eliminarUsuario,
       }}
     >
       {children}
