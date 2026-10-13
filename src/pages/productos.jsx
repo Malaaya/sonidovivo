@@ -31,41 +31,27 @@ export default function Productos() {
   }
 
   return (
-    <main
-      className="shop-section-container"
-      style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 1rem' }}
-    >
-      <div
-        className="shop-header-intro"
-        style={{ textAlign: 'center', marginBottom: '2rem' }}
-      >
-        <h2 style={{ fontSize: '2rem', color: '#0f172a', marginBottom: '0.5rem' }}>
-          {titulo}
-        </h2>
-        <p style={{ color: '#64748b', fontSize: '1rem' }}>
+    <main className="container my-4">
+      <div className="text-center mb-4">
+        <h2 className="h1 fw-bold">{titulo}</h2>
+        <p className="text-secondary">
           Explora todos nuestros instrumentos y equipos con garantía directa.
         </p>
       </div>
 
-      <div className="products-shelf-grid">
+      <div className="row g-4">
         {productosAMostrar.length === 0 ? (
-          <p
-            style={{
-              gridColumn: '1 / -1',
-              textAlign: 'center',
-              padding: '3rem',
-              color: '#64748b',
-            }}
-          >
+          <p className="col-12 text-center text-secondary py-5">
             No se encontraron productos disponibles en esta sección.
           </p>
         ) : (
           productosAMostrar.map((producto) => (
-            <ProductoCard
-              key={producto.codigo}
-              producto={producto}
-              oferta={CODIGOS_EN_OFERTA.includes(producto.codigo)}
-            />
+            <div key={producto.codigo} className="col-12 col-sm-6 col-lg-4 col-xl-3">
+              <ProductoCard
+                producto={producto}
+                oferta={CODIGOS_EN_OFERTA.includes(producto.codigo)}
+              />
+            </div>
           ))
         )}
       </div>

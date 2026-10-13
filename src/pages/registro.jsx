@@ -73,20 +73,15 @@ export default function Registro() {
   }
 
   return (
-    <main style={{ maxWidth: '600px', margin: '3rem auto', padding: '0 1.5rem' }}>
-      <div
-        style={{
-          background: '#ffffff',
-          padding: '2.5rem',
-          borderRadius: '10px',
-          border: '1px solid var(--border-color)',
-          boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
-        }}
-      >
-        <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', color: '#0f172a' }}>
+    <main className="container my-5">
+      <div className="row justify-content-center">
+      <div className="col-12 col-md-9 col-lg-7">
+      <div className="card shadow-sm">
+      <div className="card-body p-4 p-md-5">
+        <h2 className="h3 fw-bold mb-1">
           Crear Cuenta de Cliente
         </h2>
-        <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '2rem' }}>
+        <p className="text-secondary small mb-4">
           Regístrate para comprar instrumentos y gestionar tus despachos.
         </p>
 
@@ -151,19 +146,14 @@ export default function Registro() {
 
           <button
             type="submit"
-            className="btn-slide-cta"
-            style={{
-              width: '100%',
-              padding: '0.9rem',
-              border: 'none',
-              fontSize: '1rem',
-              cursor: 'pointer',
-              textAlign: 'center',
-            }}
+            className="btn btn-warning w-100 fw-bold py-2 mb-3"
           >
             Registrarme
           </button>
         </form>
+      </div>
+      </div>
+      </div>
       </div>
 
       {registrado && (
