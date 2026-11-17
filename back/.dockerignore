@@ -1,0 +1,9 @@
+.git
+target
+.env
+.env.*
+!.env.example
+node_modules
+dist
+.gitignore
+*.md
