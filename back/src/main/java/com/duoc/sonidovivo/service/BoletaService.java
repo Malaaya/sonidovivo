@@ -86,12 +86,14 @@ public class BoletaService {
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND,
                         "Boleta no encontrada con id " + id));
 
-        if (usuario.getRol() == Rol.CLIENTE && !boleta.getUsuario().getId().equals(usuario.getId())) {
-            throw new ApiException(HttpStatus.FORBIDDEN,
-                    "No tienes permisos para ver esta boleta");
-        }
+            boolean esDueño = boleta.getUsuario().getId().equals(usuario.getId());
+            boolean tieneAccesoGlobal = usuario.getRol() == Rol.ADMIN || usuario.getRol() == Rol.VENDEDOR;
 
-        return BoletaResponse.desde(boleta);
+            if (!esDueño && !tieneAccesoGlobal) {
+            throw new ApiException(HttpStatus.FORBIDDEN,
+                "No tienes permisos para ver esta boleta");
+
+            return BoletaResponse.desde(boleta);
     }
 
     private String generarNumero() {

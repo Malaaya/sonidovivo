@@ -108,9 +108,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/me").authenticated()
                         .requestMatchers("/api/v1/usuarios/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,
-                                "/api/v1/boletas/mis-compras", "/api/v1/boletas/mis-compras/**")
+                        "/api/v1/boletas/mis-compras", "/api/v1/boletas/mis-compras/**")
                         .hasRole("CLIENTE")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/boletas", "/api/v1/boletas/*")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/boletas", "/api/v1/boletas/{id}")
                         .hasAnyRole("ADMIN", "VENDEDOR")
                         .requestMatchers(HttpMethod.POST, "/api/v1/boletas")
                         .hasRole("CLIENTE")
