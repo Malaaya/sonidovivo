@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { useProductos } from './ProductosContext'
 import { CLAVES, leer, guardar } from '../utils/storage'
 
@@ -9,13 +9,28 @@ export function CarritoProvider({ children }) {
   const [carrito, setCarrito] = useState(() => leer(CLAVES.carrito, []))
   const [productoAgregado, setProductoAgregado] = useState(null)
 
+  const carritoConProductoId = useMemo(
+    () => carrito.map((item) => {
+      const producto = productos.find((actual) => actual.codigo === item.codigo)
+      if (!producto || item.productoId === producto.id) return item
+      return { ...item, productoId: producto.id }
+    }),
+    [carrito, productos],
+  )
+
+  useEffect(() => {
+    if (carritoConProductoId.some((item, index) => item !== carrito[index])) {
+      guardar(CLAVES.carrito, carritoConProductoId)
+    }
+  }, [carrito, carritoConProductoId])
+
   const actualizar = (nuevoCarrito) => {
     guardar(CLAVES.carrito, nuevoCarrito)
     setCarrito(nuevoCarrito)
   }
 
-  const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0)
-  const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0)
+  const totalItems = carritoConProductoId.reduce((acc, item) => acc + item.cantidad, 0)
+  const total = carritoConProductoId.reduce((acc, item) => acc + item.precio * item.cantidad, 0)
 
   const agregarAlCarrito = (codigo) => {
     const producto = productos.find((p) => p.codigo === codigo)
@@ -24,7 +39,7 @@ export function CarritoProvider({ children }) {
       return
     }
 
-    const existente = carrito.find((p) => p.codigo === codigo)
+    const existente = carritoConProductoId.find((p) => p.codigo === codigo)
 
     if (existente) {
       if (existente.cantidad >= producto.stock) {
@@ -32,12 +47,15 @@ export function CarritoProvider({ children }) {
         return
       }
       actualizar(
-        carrito.map((p) => (p.codigo === codigo ? { ...p, cantidad: p.cantidad + 1 } : p)),
+        carritoConProductoId.map((p) =>
+          p.codigo === codigo ? { ...p, productoId: producto.id, cantidad: p.cantidad + 1 } : p,
+        ),
       )
     } else {
       actualizar([
-        ...carrito,
+        ...carritoConProductoId,
         {
+          productoId: producto.id,
           codigo: producto.codigo,
           nombre: producto.nombre,
           precio: producto.precio,
@@ -53,14 +71,14 @@ export function CarritoProvider({ children }) {
 
   const cambiarCantidad = (codigo, delta) => {
     actualizar(
-      carrito
+      carritoConProductoId
         .map((p) => (p.codigo === codigo ? { ...p, cantidad: p.cantidad + delta } : p))
         .filter((p) => p.cantidad > 0),
     )
   }
 
   const eliminarDelCarrito = (codigo) => {
-    actualizar(carrito.filter((p) => p.codigo !== codigo))
+    actualizar(carritoConProductoId.filter((p) => p.codigo !== codigo))
   }
 
   const vaciarCarrito = () => actualizar([])
@@ -70,7 +88,7 @@ export function CarritoProvider({ children }) {
   return (
     <CarritoContext.Provider
       value={{
-        carrito,
+        carrito: carritoConProductoId,
         totalItems,
         cantidadTotal: totalItems,
         total,
