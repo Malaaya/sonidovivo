@@ -1,26 +1,99 @@
-import { createContext, useContext, useState } from 'react'
-import { PRODUCTOS_INICIALES } from '../data/datos'
-import { CLAVES, leer, guardar } from '../utils/storage'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import {
+  actualizarProducto as actualizarProductoApi,
+  crearProducto,
+  eliminarProducto as eliminarProductoApi,
+  listarCategorias,
+  listarProductos,
+} from '../services/productosService'
 
 const ProductosContext = createContext(null)
 
+function obtenerListas() {
+  return Promise.all([listarProductos(), listarCategorias()])
+}
+
+function mensajeDeError(error) {
+  return error instanceof Error
+    ? error.message
+    : 'No se pudieron cargar los productos y las categorías.'
+}
+
 export function ProductosProvider({ children }) {
-  const [productos, setProductos] = useState(() =>
-    leer(CLAVES.productos, PRODUCTOS_INICIALES),
-  )
+  const [productos, setProductos] = useState([])
+  const [categorias, setCategorias] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
 
-  const guardarProductos = (lista) => {
-    guardar(CLAVES.productos, lista)
-    setProductos(lista)
-  }
+  const recargar = useCallback(async () => {
+    setCargando(true)
+    setError(null)
 
-  const agregarProducto = (producto) => guardarProductos([...productos, producto])
+    try {
+      const [productosApi, categoriasApi] = await obtenerListas()
+      setProductos(productosApi)
+      setCategorias(categoriasApi)
+    } catch (errorCarga) {
+      setError(mensajeDeError(errorCarga))
+      throw errorCarga
+    } finally {
+      setCargando(false)
+    }
+  }, [])
 
-  const eliminarProducto = (codigo) =>
-    guardarProductos(productos.filter((p) => p.codigo !== codigo))
+  useEffect(() => {
+    let activo = true
+
+    obtenerListas()
+      .then(([productosApi, categoriasApi]) => {
+        if (!activo) return
+        setProductos(productosApi)
+        setCategorias(categoriasApi)
+      })
+      .catch((errorCarga) => {
+        if (!activo) return
+        setError(mensajeDeError(errorCarga))
+        console.error('No se pudieron cargar los productos y las categorías.', errorCarga)
+      })
+      .finally(() => {
+        if (activo) setCargando(false)
+      })
+
+    return () => {
+      activo = false
+    }
+  }, [])
+
+  const agregarProducto = useCallback(async (producto) => {
+    const creado = await crearProducto(producto)
+    await recargar()
+    return creado
+  }, [recargar])
+
+  const actualizarProducto = useCallback(async (id, producto) => {
+    const actualizado = await actualizarProductoApi(id, producto)
+    await recargar()
+    return actualizado
+  }, [recargar])
+
+  const eliminarProducto = useCallback(async (id) => {
+    await eliminarProductoApi(id)
+    await recargar()
+  }, [recargar])
 
   return (
-    <ProductosContext.Provider value={{ productos, agregarProducto, eliminarProducto }}>
+    <ProductosContext.Provider
+      value={{
+        productos,
+        categorias,
+        cargando,
+        error,
+        agregarProducto,
+        actualizarProducto,
+        eliminarProducto,
+        recargar,
+      }}
+    >
       {children}
     </ProductosContext.Provider>
   )
