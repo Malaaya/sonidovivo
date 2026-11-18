@@ -2,40 +2,91 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useCarrito } from '../context/CarritoContext'
-import { registrarCompra } from '../utils/historial'
+import { useProductos } from '../context/ProductosContext'
+import { crearBoleta } from '../services/boletasService'
 import { clp } from '../utils/formato'
 import Modal from '../components/Modal'
 
 export default function Carrito() {
   const { sesion } = useAuth()
   const { carrito, total, cambiarCantidad, eliminarDelCarrito, vaciarCarrito } = useCarrito()
+  const { recargar: recargarProductos } = useProductos()
   const navigate = useNavigate()
   const [ordenExitosa, setOrdenExitosa] = useState(null)
+  const [errorCompra, setErrorCompra] = useState(null)
+  const [procesando, setProcesando] = useState(false)
 
   const confirmarVaciar = () => {
     if (confirm('¿Estás seguro de que deseas vaciar el carrito?')) vaciarCarrito()
   }
 
-  const procesarPago = () => {
+  const procesarPago = async () => {
     if (!sesion) {
       alert('Debes iniciar sesión para realizar una compra.')
       navigate('/login')
       return
     }
 
-    if (carrito.length === 0) {
-      alert('Tu carrito está vacío.')
+    if (sesion.rol !== 'cliente') {
+      setErrorCompra(new Error('Para comprar debes iniciar sesión con una cuenta de cliente.'))
       return
     }
 
-    const orden = registrarCompra(sesion.run, carrito)
-    vaciarCarrito()
-    setOrdenExitosa(orden)
+    if (carrito.length === 0) {
+      setErrorCompra(new Error('Tu carrito está vacío.'))
+      return
+    }
+
+    if (carrito.some((item) => !Number.isInteger(item.productoId))) {
+      setErrorCompra(new Error(
+        'Hay productos del carrito que ya no están disponibles. Elimínalos y agrégalos nuevamente.',
+      ))
+      return
+    }
+
+    setErrorCompra(null)
+    setProcesando(true)
+
+    try {
+      const boleta = await crearBoleta({
+        items: carrito.map(({ productoId, cantidad }) => ({ productoId, cantidad })),
+      })
+      vaciarCarrito()
+      setOrdenExitosa(boleta)
+
+      try {
+        await recargarProductos()
+      } catch (error) {
+        const detalle = error instanceof Error ? error.message : 'Error desconocido'
+        setErrorCompra(new Error(
+          `La boleta ${boleta.numero} fue creada, pero no se pudo actualizar el catálogo: ${detalle}`,
+        ))
+      }
+    } catch (error) {
+      setErrorCompra(
+        error instanceof Error ? error : new Error('No se pudo procesar la compra.'),
+      )
+    } finally {
+      setProcesando(false)
+    }
   }
+
+  const detallesError = errorCompra?.details && typeof errorCompra.details === 'object'
+    ? Object.entries(errorCompra.details)
+    : []
 
   return (
     <main className="container my-4">
       <h2 className="h1 fw-bold mb-4">Tu Carrito de Compras</h2>
+
+      {errorCompra && (
+        <div className="alert alert-danger" role="alert">
+          <strong>{errorCompra.message}</strong>
+          {detallesError.map(([campo, detalle]) => (
+            <div key={campo}>{campo}: {detalle}</div>
+          ))}
+        </div>
+      )}
 
       <div className="row g-4 align-items-start">
         <section className="col-12 col-lg-8">
@@ -152,8 +203,13 @@ export default function Carrito() {
                 <strong>{clp(total)}</strong>
               </div>
 
-              <button type="button" className="btn btn-warning w-100 fw-bold py-2" onClick={procesarPago}>
-                Pagar con Webpay
+              <button
+                type="button"
+                className="btn btn-warning w-100 fw-bold py-2"
+                onClick={procesarPago}
+                disabled={procesando || carrito.length === 0}
+              >
+                {procesando ? 'Procesando compra...' : 'Confirmar compra'}
               </button>
             </div>
           </div>
@@ -163,13 +219,13 @@ export default function Carrito() {
       {ordenExitosa && (
         <Modal
           emoji="🎉"
-          titulo="¡Pago Aprobado!"
+          titulo="¡Compra realizada!"
           botones={[
-            { texto: 'Ver en Mi Historial de Compras', onClick: () => navigate('/perfil') },
+            { texto: 'Ver mis compras', onClick: () => navigate('/perfil') },
           ]}
         >
-          Transacción Webpay Plus exitosa. Tu orden <strong>#{ordenExitosa.id}</strong> por un total de{' '}
-          <strong>{clp(ordenExitosa.total)}</strong> fue procesada correctamente.
+          Tu boleta <strong>#{ordenExitosa.numero}</strong> por un total de{' '}
+          <strong>{clp(ordenExitosa.total)}</strong> fue creada correctamente.
         </Modal>
       )}
     </main>

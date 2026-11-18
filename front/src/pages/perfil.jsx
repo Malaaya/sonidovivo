@@ -1,13 +1,40 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { obtenerHistorial } from '../utils/historial'
+import { misCompras } from '../services/boletasService'
 import { clp } from '../utils/formato'
 
 export default function Perfil() {
   const { sesion, logout } = useAuth()
   const navigate = useNavigate()
-  const [historial] = useState(() => obtenerHistorial(sesion.run))
+  const [compras, setCompras] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let activo = true
+
+    misCompras()
+      .then((boletas) => {
+        if (activo) setCompras(boletas)
+      })
+      .catch((errorCarga) => {
+        if (activo) {
+          setError(
+            errorCarga instanceof Error
+              ? errorCarga.message
+              : 'No se pudieron cargar tus compras.',
+          )
+        }
+      })
+      .finally(() => {
+        if (activo) setCargando(false)
+      })
+
+    return () => {
+      activo = false
+    }
+  }, [])
 
   const cerrarSesion = () => {
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
@@ -49,7 +76,15 @@ export default function Perfil() {
       <section className="profile-card">
         <h2>Historial de Compras</h2>
 
-        {historial.length === 0 ? (
+        {cargando ? (
+          <p role="status" style={{ color: '#64748b', textAlign: 'center', padding: '2rem 0' }}>
+            Cargando tus compras...
+          </p>
+        ) : error ? (
+          <p role="alert" className="text-danger" style={{ textAlign: 'center', padding: '2rem 0' }}>
+            {error}
+          </p>
+        ) : compras.length === 0 ? (
           <p style={{ color: '#64748b', textAlign: 'center', padding: '2rem 0' }}>
             Aún no has realizado ninguna compra en Sonido Vivo.
             <br />
@@ -66,21 +101,21 @@ export default function Perfil() {
             </Link>
           </p>
         ) : (
-          historial.map((orden) => (
+          compras.map((orden) => (
             <div className="order-card" key={orden.id}>
               <div className="order-header">
-                <span className="order-id">Orden #{orden.id}</span>
+                <span className="order-id">Boleta #{orden.numero}</span>
                 <span className="order-date">
-                  📅 {orden.fecha} - {orden.hora}
+                  📅 {new Date(orden.fecha).toLocaleString('es-CL')}
                 </span>
               </div>
               <ul className="order-items">
                 {orden.items.map((item) => (
-                  <li key={item.codigo}>
+                  <li key={item.id}>
                     <span>
-                      {item.cantidad}x {item.nombre}
+                      {item.cantidad}x {item.productoNombre}
                     </span>
-                    <strong>{clp(item.precio * item.cantidad)}</strong>
+                    <strong>{clp(item.subtotal)}</strong>
                   </li>
                 ))}
               </ul>
