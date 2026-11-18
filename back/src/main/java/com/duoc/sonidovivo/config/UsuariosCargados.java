@@ -41,11 +41,11 @@ public class UsuariosCargados implements ApplicationRunner {
         validarContrasena(contrasenaVendedor, "app.seed-users.seller-password");
         validarContrasena(contrasenaCliente, "app.seed-users.customer-password");
 
-        cargarUsuarioSiNoExiste(
+        cargarUsuario(
                 "admin@sonidovivo.cl", "Administrador", "11111111-1", contrasenaAdmin, Rol.ADMIN);
-        cargarUsuarioSiNoExiste(
+        cargarUsuario(
                 "vendedor@sonidovivo.cl", "Vendedor", "22222222-2", contrasenaVendedor, Rol.VENDEDOR);
-        cargarUsuarioSiNoExiste(
+        cargarUsuario(
                 "cliente@sonidovivo.cl", "Cliente", "33333333-3", contrasenaCliente, Rol.CLIENTE);
     }
 
@@ -58,18 +58,18 @@ public class UsuariosCargados implements ApplicationRunner {
         }
     }
 
-    private void cargarUsuarioSiNoExiste(
+    private void cargarUsuario(
             String correo, String nombre, String run, String contrasena, Rol rol) {
-        if (repositorioUsuarios.existsByEmailIgnoreCase(correo)) {
-            return;
-        }
-
-        Usuario usuario = new Usuario();
-        usuario.setRun(run);
-        usuario.setNombre(nombre);
-        usuario.setEmail(correo);
+        Usuario usuario = repositorioUsuarios.findByEmailIgnoreCase(correo)
+                .orElseGet(() -> {
+                    Usuario nuevoUsuario = new Usuario();
+                    nuevoUsuario.setRun(run);
+                    nuevoUsuario.setNombre(nombre);
+                    nuevoUsuario.setEmail(correo);
+                    nuevoUsuario.setRol(rol);
+                    return nuevoUsuario;
+                });
         usuario.setPassword(codificadorContrasenas.encode(contrasena));
-        usuario.setRol(rol);
         repositorioUsuarios.save(usuario);
     }
 }

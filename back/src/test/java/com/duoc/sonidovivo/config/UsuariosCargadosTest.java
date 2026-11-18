@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -14,6 +13,7 @@ import com.duoc.sonidovivo.model.Rol;
 import com.duoc.sonidovivo.model.Usuario;
 import com.duoc.sonidovivo.repository.UsuarioRepository;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -33,6 +33,7 @@ class UsuariosCargadosTest {
 
     @Test
     void creaLosTresUsuariosConRunYPasswordCodificados() throws Exception {
+        when(usuarioRepository.findByEmailIgnoreCase(anyString())).thenReturn(Optional.empty());
         UsuariosCargados seed = crearSeed("adminPassword", "sellerPassword", "customerPassword");
 
         seed.run(new DefaultApplicationArguments());
@@ -60,15 +61,21 @@ class UsuariosCargadosTest {
     }
 
     @Test
-    void noDuplicaUsuariosQueYaExisten() throws Exception {
-        when(usuarioRepository.existsByEmailIgnoreCase(anyString())).thenReturn(true);
+    void actualizaPasswordsDeUsuariosQueYaExisten() throws Exception {
+        Usuario admin = usuarioExistente("admin@sonidovivo.cl");
+        Usuario vendedor = usuarioExistente("vendedor@sonidovivo.cl");
+        Usuario cliente = usuarioExistente("cliente@sonidovivo.cl");
+        when(usuarioRepository.findByEmailIgnoreCase("admin@sonidovivo.cl")).thenReturn(Optional.of(admin));
+        when(usuarioRepository.findByEmailIgnoreCase("vendedor@sonidovivo.cl")).thenReturn(Optional.of(vendedor));
+        when(usuarioRepository.findByEmailIgnoreCase("cliente@sonidovivo.cl")).thenReturn(Optional.of(cliente));
         UsuariosCargados seed = crearSeed("adminPassword", "sellerPassword", "customerPassword");
 
         seed.run(new DefaultApplicationArguments());
 
-        verify(usuarioRepository, times(3)).existsByEmailIgnoreCase(anyString());
-        verify(usuarioRepository, never()).save(any(Usuario.class));
-        verifyNoInteractions(passwordEncoder);
+        assertThat(admin.getPassword()).isEqualTo("bcrypt:adminPassword");
+        assertThat(vendedor.getPassword()).isEqualTo("bcrypt:sellerPassword");
+        assertThat(cliente.getPassword()).isEqualTo("bcrypt:customerPassword");
+        verify(usuarioRepository, times(3)).save(any(Usuario.class));
     }
 
     @Test
@@ -90,5 +97,12 @@ class UsuariosCargadosTest {
                 adminPassword,
                 sellerPassword,
                 customerPassword);
+    }
+
+    private Usuario usuarioExistente(String email) {
+        Usuario usuario = new Usuario();
+        usuario.setEmail(email);
+        usuario.setPassword("password-anterior");
+        return usuario;
     }
 }
