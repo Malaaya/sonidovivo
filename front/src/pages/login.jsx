@@ -1,9 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { primerNombre } from '../utils/formato'
 import Espacio from '../components/Espacio'
-import Modal from '../components/Modal'
 
 export default function Login() {
   const { login } = useAuth()
@@ -12,7 +10,6 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errores, setErrores] = useState({})
-  const [sesionIniciada, setSesionIniciada] = useState(null)
   const [enviando, setEnviando] = useState(false)
 
   const manejarSubmit = async (e) => {
@@ -30,16 +27,19 @@ export default function Login() {
 
     setEnviando(true)
     try {
-      const sesion = await login(email, password)
-      setSesionIniciada(sesion)
+      const usuario = await login(email, password)
+      const destino = usuario.rol === 'admin'
+        ? '/admin'
+        : usuario.rol === 'vendedor'
+          ? '/vendedor'
+          : '/'
+      navigate(destino, { replace: true })
     } catch (error) {
       setErrores({ ...error.details, formulario: error.message })
     } finally {
       setEnviando(false)
     }
   }
-
-  const esAdmin = sesionIniciada?.rol === 'admin'
 
   return (
     <main className="container my-5">
@@ -102,19 +102,6 @@ export default function Login() {
       </div>
       </div>
 
-      {sesionIniciada && (
-        <Modal
-          emoji="👋"
-          titulo={`¡Hola, ${primerNombre(sesionIniciada.nombre)}!`}
-          botones={[
-            {
-              texto: esAdmin ? 'Ir al Panel Admin' : 'Ir a la Tienda',
-              onClick: () => navigate(esAdmin ? '/admin' : '/'),
-            },
-          ]}
-        >Has iniciado sesión correctamente.
-        </Modal>
-      )}
     </main>
   )
 }

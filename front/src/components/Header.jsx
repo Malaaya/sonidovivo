@@ -12,11 +12,21 @@ function BotonAuth() {
 
   if (sesion?.nombre) {
     const nombre = primerNombre(sesion.nombre)
-    return sesion.rol === 'admin' ? (
+    if (sesion.rol === 'admin') {
+      return (
       <Link to="/admin" className="btn-auth-pill">
-        Admin: {nombre}
+        Panel Admin: {nombre}
       </Link>
-    ) : (
+      )
+    }
+    if (sesion.rol === 'vendedor') {
+      return (
+        <Link to="/vendedor" className="btn-auth-pill">
+          Panel Vendedor: {nombre}
+        </Link>
+      )
+    }
+    return (
       <Link to="/perfil" className="btn-auth-pill">
         👋 Hola, {nombre}
       </Link>
@@ -37,6 +47,7 @@ function BotonAuth() {
 export default function Header({ variante = 'completo' }) {
   const [busqueda, setBusqueda] = useState('')
   const [menuAbierto, setMenuAbierto] = useState(false)
+  const { sesion } = useAuth()
   const { totalItems } = useCarrito()
   const { categorias, cargando, error } = useProductos()
   const navigate = useNavigate()
@@ -106,10 +117,12 @@ export default function Header({ variante = 'completo' }) {
 
         <div className="user-actions">
           <BotonAuth />
-          <Link to="/carrito" className="cart-icon-btn" title="Ver Carrito">
-            🛒
-            <span className="cart-badge-count">{totalItems}</span>
-          </Link>
+          {(!sesion || sesion.rol === 'cliente') && (
+            <Link to="/carrito" className="cart-icon-btn" title="Ver Carrito">
+              🛒
+              <span className="cart-badge-count">{totalItems}</span>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -168,9 +181,11 @@ export default function Header({ variante = 'completo' }) {
               <li>
                 <Link to="/contacto">Contacto</Link>
               </li>
-              <li>
-                <EnlaceAdmin>Portal Admin</EnlaceAdmin>
-              </li>
+              {sesion?.rol === 'admin' && (
+                <li>
+                  <EnlaceAdmin>Portal Admin</EnlaceAdmin>
+                </li>
+              )}
             </ul>
           </div>
         </div>
@@ -221,6 +236,36 @@ export function HeaderAdmin() {
               cursor: 'pointer',
             }}
           >
+            Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    </header>
+  )
+}
+
+export function HeaderVendedor() {
+  const { logout } = useAuth()
+  const navigate = useNavigate()
+
+  const cerrarSesion = () => {
+    if (confirm('¿Estás seguro de que deseas cerrar la sesión de vendedor?')) {
+      logout()
+      navigate('/')
+    }
+  }
+
+  return (
+    <header className="site-header">
+      <div
+        className="top-bar"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+      >
+        <div className="brand-logo">
+          <span>SONIDO <span>VIVO</span> (PANEL VENDEDOR)</span>
+        </div>
+        <div className="user-actions">
+          <button type="button" className="btn-auth-pill" onClick={cerrarSesion}>
             Cerrar Sesión
           </button>
         </div>

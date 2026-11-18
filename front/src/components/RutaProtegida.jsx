@@ -2,9 +2,22 @@ import { useEffect, useRef } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-export default function RutaProtegida({ rol, mensaje, redirigirA, children }) {
+const RUTAS_POR_ROL = {
+  admin: '/admin',
+  vendedor: '/vendedor',
+}
+
+export default function RutaProtegida({
+  roles,
+  mensaje,
+  redirigirA,
+  redirigirSiNoAutenticado = '/login',
+  permitirAnonimo = false,
+  children,
+}) {
   const { sesion, authReady } = useAuth()
-  const permitido = authReady && Boolean(sesion) && (!rol || sesion.rol === rol)
+  const permitido = authReady
+    && ((!sesion && permitirAnonimo) || (Boolean(sesion) && (!roles || roles.includes(sesion.rol))))
   const avisado = useRef(false)
 
   useEffect(() => {
@@ -15,6 +28,11 @@ export default function RutaProtegida({ rol, mensaje, redirigirA, children }) {
   }, [authReady, permitido, mensaje])
 
   if (!authReady) return <p role="status">Verificando sesión...</p>
-  if (!permitido) return <Navigate to={redirigirA} replace />
+  if (!permitido) {
+    const destino = sesion
+      ? RUTAS_POR_ROL[sesion.rol] || redirigirA || '/'
+      : redirigirSiNoAutenticado
+    return <Navigate to={destino} replace />
+  }
   return children
 }
