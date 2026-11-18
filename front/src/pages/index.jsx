@@ -5,7 +5,7 @@ import ProductoCard from '../components/ProductoCard'
 const MARCAS = ['YAMAHA', 'FENDER', 'MARSHALL', 'ROLAND', 'BOSS', 'SHURE']
 
 export default function Index() {
-  const { productos } = useProductos()
+  const { productos, cargando, error } = useProductos()
   const destacados = productos.slice(0, 4)
 
   return (
@@ -49,13 +49,23 @@ export default function Index() {
             Nuestra selección de instrumentos más pedidos con disponibilidad inmediata
           </p>
         </div>
-        <div className="row g-4">
-          {destacados.map((producto) => (
-            <div key={producto.codigo} className="col-12 col-sm-6 col-lg-3">
-              <ProductoCard producto={producto} oferta />
-            </div>
-          ))}
-        </div>
+        {cargando ? (
+          <p className="text-center text-secondary py-4" role="status">
+            Cargando productos...
+          </p>
+        ) : error ? (
+          <p className="text-center text-danger py-4" role="alert">
+            {error}
+          </p>
+        ) : (
+          <div className="row g-4">
+            {destacados.map((producto) => (
+              <div key={producto.id} className="col-12 col-sm-6 col-lg-3">
+                <ProductoCard producto={producto} oferta />
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="brands-section">

@@ -2,17 +2,9 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useCarrito } from '../context/CarritoContext'
+import { useProductos } from '../context/ProductosContext'
 import { primerNombre } from '../utils/formato'
 import EnlaceAdmin from './EnlaceAdmin'
-
-const CATEGORIAS = [
-  { slug: 'guitarras', nombre: 'Guitarras' },
-  { slug: 'bajos', nombre: 'Bajos Eléctricos' },
-  { slug: 'amplis', nombre: 'Amplificadores' },
-  { slug: 'pedales', nombre: 'Pedales de Efectos' },
-  { slug: 'baterias', nombre: 'Baterías & Percusión' },
-  { slug: 'teclados', nombre: 'Teclados y Pianos' },
-]
 
 function BotonAuth() {
   const { sesion } = useAuth()
@@ -46,6 +38,7 @@ export default function Header({ variante = 'completo' }) {
   const [busqueda, setBusqueda] = useState('')
   const [menuAbierto, setMenuAbierto] = useState(false)
   const { totalItems } = useCarrito()
+  const { categorias, cargando, error } = useProductos()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -133,9 +126,19 @@ export default function Header({ variante = 'completo' }) {
               <li>
                 <Link to="/productos">Todos los productos</Link>
               </li>
-              {CATEGORIAS.map(({ slug, nombre }) => (
-                <li key={slug}>
-                  <Link to={`/productos?cat=${slug}`}>{nombre}</Link>
+              {cargando && (
+                <li>
+                  <span role="status">Cargando categorías...</span>
+                </li>
+              )}
+              {error && (
+                <li>
+                  <span role="alert">{error}</span>
+                </li>
+              )}
+              {!cargando && !error && categorias.map(({ id, nombre }) => (
+                <li key={id}>
+                  <Link to={`/productos?categoriaId=${id}`}>{nombre}</Link>
                 </li>
               ))}
             </ul>

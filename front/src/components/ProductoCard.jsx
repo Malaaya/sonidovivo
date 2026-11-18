@@ -21,7 +21,7 @@ export default function ProductoCard({ producto, oferta = false }) {
 
       <div className="card-body d-flex flex-column">
         <small className="text-muted fw-semibold">
-          {producto.codigo} | {producto.categoria || 'Audio & Cuerdas'}
+          {producto.codigo} | {producto.categoriaNombre || 'Sin categoría'}
         </small>
 
         <h3 className="card-title h6 fw-bold my-1">{producto.nombre}</h3>

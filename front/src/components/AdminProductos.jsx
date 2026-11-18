@@ -6,60 +6,146 @@ const FORM_VACIO = {
   codigo: '',
   nombre: '',
   marca: '',
-  catSlug: '',
+  modelo: '',
+  descripcion: '',
+  categoriaId: '',
   precio: '',
   stock: '',
   imagen: '',
 }
 
 export default function AdminProductos() {
-  const { productos, agregarProducto, eliminarProducto } = useProductos()
+  const {
+    productos,
+    categorias,
+    cargando,
+    error: errorCarga,
+    agregarProducto,
+    actualizarProducto,
+    eliminarProducto,
+  } = useProductos()
   const [form, setForm] = useState(FORM_VACIO)
-
-  const categorias = [...new Map(productos.map((p) => [p.catSlug, p.categoria])).entries()].filter(
-    ([slug]) => slug,
-  )
+  const [productoEditando, setProductoEditando] = useState(null)
+  const [errorOperacion, setErrorOperacion] = useState(null)
+  const [mensaje, setMensaje] = useState('')
 
   const cambiar = (campo) => (e) => setForm((prev) => ({ ...prev, [campo]: e.target.value }))
 
-  const guardarProducto = (e) => {
+  const limpiarFormulario = () => {
+    setForm(FORM_VACIO)
+    setProductoEditando(null)
+  }
+
+  const editarProducto = (producto) => {
+    setForm({
+      codigo: producto.codigo,
+      nombre: producto.nombre,
+      marca: producto.marca,
+      modelo: producto.modelo || '',
+      descripcion: producto.descripcion || '',
+      categoriaId: String(producto.categoriaId),
+      precio: String(producto.precio),
+      stock: String(producto.stock),
+      imagen: producto.imagen || '',
+    })
+    setProductoEditando(producto)
+    setErrorOperacion(null)
+    setMensaje('')
+  }
+
+  const guardarProducto = async (e) => {
     e.preventDefault()
 
     const codigo = form.codigo.trim().toUpperCase()
-    if (productos.some((p) => p.codigo.toUpperCase() === codigo)) {
-      alert('El código SKU ingresado ya existe.')
+    if (productos.some(
+      (producto) =>
+        producto.codigo.toUpperCase() === codigo && producto.id !== productoEditando?.id,
+    )) {
+      setErrorOperacion(new Error('Ya existe un producto con ese código SKU.'))
       return
     }
 
-    const [, categoria] = categorias.find(([slug]) => slug === form.catSlug)
-
-    agregarProducto({
+    const producto = {
       codigo,
       nombre: form.nombre.trim(),
       marca: form.marca.trim(),
-      categoria,
-      catSlug: form.catSlug,
-      precio: parseInt(form.precio, 10),
-      stock: parseInt(form.stock, 10),
-      imagen: form.imagen.trim(),
-    })
+      modelo: form.modelo.trim() || null,
+      descripcion: form.descripcion.trim() || null,
+      precio: Number(form.precio),
+      stock: Number(form.stock),
+      imagen: form.imagen.trim() || null,
+      categoriaId: Number(form.categoriaId),
+    }
 
-    setForm(FORM_VACIO)
-    alert(`Producto "${form.nombre.trim()}" agregado con éxito.`)
-  }
+    setErrorOperacion(null)
+    setMensaje('')
 
-  const borrarProducto = (codigo) => {
-    if (confirm(`¿Estás seguro de que deseas eliminar el producto ${codigo}?`)) {
-      eliminarProducto(codigo)
+    try {
+      if (productoEditando) {
+        await actualizarProducto(productoEditando.id, producto)
+        setMensaje(`Producto "${producto.nombre}" actualizado correctamente.`)
+      } else {
+        await agregarProducto(producto)
+        setMensaje(`Producto "${producto.nombre}" agregado correctamente.`)
+      }
+
+      limpiarFormulario()
+    } catch (error) {
+      setErrorOperacion(
+        error instanceof Error ? error : new Error('No se pudo guardar el producto.'),
+      )
     }
   }
 
+  const borrarProducto = async (id, codigo) => {
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar el producto ${codigo}?`)) return
+
+    setErrorOperacion(null)
+    setMensaje('')
+
+    try {
+      await eliminarProducto(id)
+      setMensaje(`Producto "${codigo}" eliminado correctamente.`)
+      if (productoEditando?.id === id) limpiarFormulario()
+    } catch (error) {
+      setErrorOperacion(
+        error instanceof Error ? error : new Error('No se pudo eliminar el producto.'),
+      )
+    }
+  }
+
+  const detallesError = errorOperacion?.details && typeof errorOperacion.details === 'object'
+    ? Object.entries(errorOperacion.details)
+    : []
+
   return (
-    <div className="row g-4 mb-4">
+    <>
+      {errorCarga && (
+        <div className="alert alert-danger" role="alert">
+          {errorCarga}
+        </div>
+      )}
+      {errorOperacion && (
+        <div className="alert alert-danger" role="alert">
+          <strong>{errorOperacion.message}</strong>
+          {detallesError.map(([campo, detalle]) => (
+            <div key={campo}>{campo}: {detalle}</div>
+          ))}
+        </div>
+      )}
+      {mensaje && (
+        <div className="alert alert-success" role="status">
+          {mensaje}
+        </div>
+      )}
+
+      <div className="row g-4 mb-4">
       <section className="col-12 col-lg-4">
        <div className="card shadow-sm">
         <div className="card-body">
-        <h3 className="h5 fw-bold mb-3">Agregar Producto</h3>
+        <h3 className="h5 fw-bold mb-3">
+          {productoEditando ? 'Editar Producto' : 'Agregar Producto'}
+        </h3>
         <form onSubmit={guardarProducto}>
           <div className="mb-3">
             <label className="form-label fw-semibold">Código (SKU)</label>
@@ -95,14 +181,39 @@ export default function AdminProductos() {
             />
           </div>
           <div className="mb-3">
+            <label className="form-label fw-semibold">Modelo</label>
+            <input
+              className="form-control"
+              type="text"
+              placeholder="Modelo del producto"
+              value={form.modelo}
+              onChange={cambiar('modelo')}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Descripción</label>
+            <textarea
+              className="form-control"
+              rows="3"
+              placeholder="Descripción del producto"
+              value={form.descripcion}
+              onChange={cambiar('descripcion')}
+            />
+          </div>
+          <div className="mb-3">
             <label className="form-label fw-semibold">Categoría</label>
-            <select className="form-select" required value={form.catSlug} onChange={cambiar('catSlug')}>
+            <select
+              className="form-select"
+              required
+              value={form.categoriaId}
+              onChange={cambiar('categoriaId')}
+            >
               <option value="" disabled>
                 Selecciona una categoría
               </option>
-              {categorias.map(([slug, nombre]) => (
-                <option key={slug} value={slug}>
-                  {nombre}
+              {categorias.map((categoria) => (
+                <option key={categoria.id} value={categoria.id}>
+                  {categoria.nombre}
                 </option>
               ))}
             </select>
@@ -112,7 +223,7 @@ export default function AdminProductos() {
             <input
               className="form-control"
               type="number"
-              min="0"
+              min="1"
               required
               placeholder="199990"
               value={form.precio}
@@ -124,7 +235,7 @@ export default function AdminProductos() {
             <input
               className="form-control"
               type="number"
-              min="1"
+              min="0"
               required
               placeholder="5"
               value={form.stock}
@@ -136,15 +247,21 @@ export default function AdminProductos() {
             <input
               className="form-control"
               type="url"
-              required
               placeholder="https://ejemplo.com/foto.jpg"
               value={form.imagen}
               onChange={cambiar('imagen')}
             />
           </div>
-          <button type="submit" className="btn btn-dark w-100 fw-bold">
-            Guardar en Inventario
-          </button>
+          <div className="d-flex gap-2">
+            <button type="submit" className="btn btn-dark w-100 fw-bold" disabled={cargando}>
+              {productoEditando ? 'Guardar cambios' : 'Guardar en Inventario'}
+            </button>
+            {productoEditando && (
+              <button type="button" className="btn btn-outline-secondary" onClick={limpiarFormulario}>
+                Cancelar
+              </button>
+            )}
+          </div>
         </form>
         </div>
        </div>
@@ -167,7 +284,13 @@ export default function AdminProductos() {
               </tr>
             </thead>
             <tbody>
-              {productos.length === 0 ? (
+              {cargando ? (
+                <tr>
+                  <td colSpan={6} className="text-center text-secondary" role="status">
+                    Cargando productos...
+                  </td>
+                </tr>
+              ) : productos.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center text-secondary">
                     No hay productos en inventario.
@@ -175,7 +298,7 @@ export default function AdminProductos() {
                 </tr>
               ) : (
                 productos.map((prod) => (
-                  <tr key={prod.codigo}>
+                  <tr key={prod.id}>
                     <td>
                       <strong>{prod.codigo}</strong>
                     </td>
@@ -185,17 +308,26 @@ export default function AdminProductos() {
                       </div>
                       <small style={{ color: '#e91e63' }}>{prod.marca}</small>
                     </td>
-                    <td>{prod.categoria || 'Sin categoría'}</td>
+                    <td>{prod.categoriaNombre || 'Sin categoría'}</td>
                     <td>{clp(prod.precio)}</td>
                     <td>{prod.stock} u.</td>
                     <td>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => borrarProducto(prod.codigo)}
-                      >
-                        🗑️ Eliminar
-                      </button>
+                      <div className="d-flex gap-2">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => editarProducto(prod)}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => borrarProducto(prod.id, prod.codigo)}
+                        >
+                          🗑️ Eliminar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -206,6 +338,7 @@ export default function AdminProductos() {
         </div>
        </div>
       </section>
-    </div>
+      </div>
+    </>
   )
 }
