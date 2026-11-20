@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       api_url:
-        description: "URL base del backend para el build del frontend (ej. http://23.22.243.240:8081)"
+        description: "URL base del backend para el build del frontend (ej. http://18.214.80.17:8081)"
         required: false
         type: string
 
@@ -118,7 +118,7 @@ jobs:
             RESOLVED_API_URL="${{ vars.VITE_API_URL }}"
           fi
           if [ -z "$RESOLVED_API_URL" ]; then
-            RESOLVED_API_URL="http://23.22.243.240:8081"
+            RESOLVED_API_URL="http://18.214.80.17:8081"
           fi
 
           echo "Using VITE_API_URL=$RESOLVED_API_URL"
